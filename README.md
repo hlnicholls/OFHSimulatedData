@@ -17,6 +17,8 @@ The generator produces CSV files for a synthetic cohort, including:
 
 All datasets are linked by `pid`.
 
+The sample size, diagnostic codes, and BNF drug codes are determined by the user. The codes then randomly distributed throughout the inpatient, outpatient, A&E, and medicines dispensed in primary care datasets.
+
 ## Requirements
 
 Minimum:
