@@ -38,6 +38,12 @@ install.packages(c("rmarkdown", "knitr"))
 
 ## Quick Start
 
+```
+git clone https://github.com/hlnicholls/OFHSimulatedData
+
+cd ./OFHSimulatedData
+```
+
 ```r
 install.packages(".", repos = NULL, type = "source")
 library(OFHSimulatedData)
