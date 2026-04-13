@@ -1,0 +1,99 @@
+---
+title: "Getting Started: OFH Synthetic Cohort Generation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started: OFH Synthetic Cohort Generation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## Overview
+
+This vignette shows how to generate synthetic cohort datasets for method development before using real health data.
+
+The package-style API supports:
+
+- configurable cohort size
+- reproducible generation via seed
+- optional ICD-10 / OPCS4 / BNF code restrictions
+
+## 1. Load the package
+
+```{r load-api, eval = FALSE}
+library(OFHSimulatedData)
+```
+
+## 2. Generate a basic cohort
+
+```{r basic-run, eval = FALSE}
+out <- generate_ofh_cohort(
+  n = 1000,
+  seed = 123
+)
+
+names(out)
+```
+
+This returns a named list of data frames and writes CSVs to an output folder in your current working directory.
+
+If you run this interactively, the generated data frames are also available in your R environment (for example `questionnaire_data`, `clinic_measurements_data`, `nhse_inpat_data`).
+
+## 3. Restrict to specific code lists
+
+```{r code-lists, eval = FALSE}
+out <- generate_ofh_cohort(
+  n = 1000,
+  seed = 123,
+  icd10 = c(
+    I210 = "STEMI of anterolateral wall",
+    I500 = "Congestive heart failure"
+  ),
+  opcs4 = c(
+    K401 = "Percutaneous transluminal balloon angioplasty of coronary artery"
+  ),
+  bnf_codes = c("0212000B0", "0601023A0")
+)
+```
+
+You can also provide code files (TXT or CSV) with one code per line:
+
+```{r code-files, eval = FALSE}
+out <- generate_ofh_cohort(
+  n = 1000,
+  seed = 123,
+  icd10_file = "icd10_codes.txt",
+  opcs4_file = "opcs4_codes.csv",
+  bnf_codes_file = "bnf_codes.txt"
+)
+```
+
+## 4. Use the OOP interface directly
+
+```{r oop-run, eval = FALSE}
+sim <- OFHCohortSimulator$new(project_root = ".", seed = 123)
+
+sim$set_code_pools(
+  icd10 = c(I210 = "STEMI of anterolateral wall"),
+  opcs4 = c(K401 = "Percutaneous transluminal balloon angioplasty of coronary artery"),
+  bnf_codes = c("0212000B0", "0601023A0")
+)
+
+out <- sim$run_all(n = 800)
+```
+
+## 5. Practical tips for researchers
+
+- Start with small `n` (for example, 200 to 1000) while developing.
+- Fix `seed` for reproducibility during method testing.
+- Check row counts and `pid` linkage assumptions in your analysis scripts.
+- Expand code lists as your phenotype definitions evolve.
+
+## 6. Notes
+
+- Some datasets are intentional subsets of the full cohort.
+- Questionnaire output includes a small v1 proportion by design.
+- Primary care meds include prescribed-but-not-dispensed rows.

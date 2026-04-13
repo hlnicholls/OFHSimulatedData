@@ -1,0 +1,24 @@
+Package: OFHSimulatedData
+Type: Package
+Title: Synthetic Linked Health Cohort Data Generator
+Version: 0.1.0
+Authors@R: person(given = "OFH", family = "Team", role = c("aut", "cre"), email = "maintainer@example.org")
+Description: Generates synthetic linked health datasets for method development,
+    including participant, questionnaire, clinic measurements, outpatient,
+    inpatient, emergency, mortality, primary care medication, and geography
+    outputs. Supports reproducible generation with configurable cohort size and
+    user-defined ICD-10, OPCS-4, and BNF code pools.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: R (>= 4.2.0)
+Imports:
+    methods,
+    utils,
+    stats
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3

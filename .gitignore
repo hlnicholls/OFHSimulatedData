@@ -1,0 +1,8 @@
+/legacy-scripts-baseline
+/questionnaire_docs
+/data_dictionaries
+/data
+/questionnaire_analysis
+/output
+/*.tar.gz
+/*.Rcheck

@@ -1,0 +1,229 @@
+#' OOP simulator class for OFH synthetic cohort generation
+#'
+#' @field project_root Kept for API compatibility; package assets are loaded from installed files.
+#' @field generator_scripts_dir Path to template generator scripts.
+#' @field data_dictionaries_dir Path to template data dictionaries.
+#' @field output_dir Output directory for final CSV files.
+#' @field seed Random seed.
+#' @field config Generation configuration.
+#' @export
+OFHCohortSimulator <- methods::setRefClass(
+  "OFHCohortSimulator",
+  fields = list(
+    project_root = "character",
+    generator_scripts_dir = "character",
+    data_dictionaries_dir = "character",
+    output_dir = "character",
+    seed = "numeric",
+    config = "list"
+  ),
+  methods = list(
+    initialize = function(project_root = ".", output_dir = NULL, seed = 42) {
+      local_root <- normalizePath(project_root, mustWork = FALSE)
+      local_scripts <- file.path(local_root, "inst", "generator_scripts")
+      local_dicts <- file.path(local_root, "data_dictionaries")
+
+      installed_scripts <- system.file("generator_scripts", package = "OFHSimulatedData")
+      installed_dicts <- system.file("data_dictionaries", package = "OFHSimulatedData")
+
+      # Prefer repository-local assets during development so script edits in the
+      # workspace are used immediately without reinstalling the package.
+      if (dir.exists(local_scripts) && dir.exists(local_dicts)) {
+        project_root <<- local_root
+        generator_scripts_dir <<- local_scripts
+        data_dictionaries_dir <<- local_dicts
+      } else if (nzchar(installed_scripts) && nzchar(installed_dicts)) {
+        project_root <<- local_root
+        generator_scripts_dir <<- installed_scripts
+        data_dictionaries_dir <<- installed_dicts
+      } else {
+        stop("Could not locate local or installed generator scripts and data dictionaries")
+      }
+
+      out_dir <- output_dir
+      if (is.null(output_dir)) {
+        out_dir <- file.path(normalizePath(getwd(), mustWork = TRUE), "output")
+      } else {
+        out_dir <- normalizePath(output_dir, mustWork = FALSE)
+      }
+      output_dir <<- out_dir
+      if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+      seed <<- as.integer(seed)
+      config <<- list()
+    },
+
+    generate_ofh_population = function(n = 1000, seed = 123) {
+      generate_ofh_population(n = n, seed = seed)
+    },
+
+    add_inpatient_events = function(data, events_per_person = 5, icd10_codes = c("I210", "I500", "I639"), opcs4_codes = c("K401", "K451"), seed = 123) {
+      add_inpatient_events(
+        data = data,
+        events_per_person = events_per_person,
+        icd10_codes = icd10_codes,
+        opcs4_codes = opcs4_codes,
+        seed = seed
+      )
+    },
+
+    simulate_drug_exposure = function(data, drug_list = c("0212000B0", "0601023A0"), seed = 123, mean_items_per_person = 2) {
+      simulate_drug_exposure(
+        data = data,
+        drug_list = drug_list,
+        seed = seed,
+        mean_items_per_person = mean_items_per_person
+      )
+    },
+
+    set_code_pools = function(icd10 = NULL, opcs4 = NULL, bnf_codes = NULL) {
+      if (!is.null(icd10) && length(icd10) > 0) {
+        icd10 <- as.character(icd10)
+        if (is.null(names(icd10)) || any(names(icd10) == "")) names(icd10) <- icd10
+      }
+      if (!is.null(opcs4) && length(opcs4) > 0) {
+        opcs4 <- as.character(opcs4)
+        if (is.null(names(opcs4)) || any(names(opcs4) == "")) names(opcs4) <- opcs4
+      }
+
+      cc <- list()
+      if (!is.null(icd10) || !is.null(opcs4)) {
+        icd10_map <- if (!is.null(icd10)) icd10 else c()
+        opcs4_map <- if (!is.null(opcs4)) opcs4 else c()
+
+        cc$nhse_outpat_data <- list(icd10_descriptions = icd10_map, opcs4_descriptions = opcs4_map)
+        cc$nhse_inpat_data <- list(icd10_descriptions = icd10_map, opcs4_descriptions = opcs4_map)
+        cc$nhse_engwal_deaths_data <- list(icd10_descriptions = icd10_map)
+      }
+
+      if (!is.null(bnf_codes) && length(bnf_codes) > 0) {
+        cc$nhse_primcare_meds_data <- list(bnf_codes = as.character(bnf_codes))
+      }
+
+      config$code_config <<- cc
+      invisible(.self)
+    },
+
+    build_config = function(n = 5000) {
+      cc <- if (!is.null(config$code_config)) config$code_config else list()
+      config <<- ofh_build_config(n = n, code_config = cc)
+      invisible(.self)
+    },
+
+    run_all = function(n = 5000, seed = NULL) {
+      if (!is.null(seed)) seed <<- as.integer(seed)
+      build_config(n = n)
+
+      cat("\n=== GENERATION CONFIGURATION ===\n")
+      cat("Cohort size:", config$total_pid_count, "participants\n")
+      icd10_count <- if (!is.null(config$code_config$nhse_outpat_data$icd10_descriptions)) {
+        length(config$code_config$nhse_outpat_data$icd10_descriptions)
+      } else {
+        0
+      }
+      opcs4_count <- if (!is.null(config$code_config$nhse_outpat_data$opcs4_descriptions)) {
+        length(config$code_config$nhse_outpat_data$opcs4_descriptions)
+      } else {
+        0
+      }
+      bnf_count <- if (!is.null(config$code_config$nhse_primcare_meds_data$bnf_codes)) {
+        length(config$code_config$nhse_primcare_meds_data$bnf_codes)
+      } else {
+        0
+      }
+      cat("ICD-10 codes: ", icd10_count, "\n", sep = "")
+      cat("OPCS4 codes: ", opcs4_count, "\n", sep = "")
+      cat("BNF codes: ", bnf_count, "\n", sep = "")
+      cat("=== GENERATING DATASETS ===\n\n")
+
+      work_root <- tempfile("ofh_build_")
+      dir.create(work_root, recursive = TRUE, showWarnings = FALSE)
+      on.exit(unlink(work_root, recursive = TRUE, force = TRUE), add = TRUE)
+
+      work_scripts <- file.path(work_root, "generator_scripts")
+      work_dicts <- file.path(work_root, "data_dictionaries")
+      work_data <- file.path(work_root, "data")
+      dir.create(work_data, recursive = TRUE, showWarnings = FALSE)
+      dir.create(work_scripts, recursive = TRUE, showWarnings = FALSE)
+      dir.create(work_dicts, recursive = TRUE, showWarnings = FALSE)
+
+      file.copy(list.files(generator_scripts_dir, all.files = TRUE, no.. = TRUE, full.names = TRUE),
+                work_scripts, recursive = TRUE)
+      file.copy(list.files(data_dictionaries_dir, pattern = "\\.csv$", full.names = TRUE),
+                work_dicts, recursive = FALSE)
+
+      old_wd <- getwd()
+      on.exit(setwd(old_wd), add = TRUE)
+      setwd(work_scripts)
+
+      source("generate_pids.R")
+      assign("GEN_CONFIG", config, envir = .GlobalEnv)
+      assign("ALL_STUDY_PIDS", generate_pids(config$total_pid_count), envir = .GlobalEnv)
+      set.seed(.self$seed)
+
+      scripts <- c(
+        "generate_participant_data.R",
+        "generate_clinic_measurements_data.R",
+        "generate_questionnaire_data.R",
+        "generate_nhse_outpatient_data.R",
+        "generate_nhse_inpatient_data.R",
+        "generate_nhse_deaths_data.R",
+        "generate_nhse_emergency_data.R",
+        "generate_nhse_primary_care_meds_data.R",
+        "generate_country_region_data.R"
+      )
+      for (script in scripts) source(script)
+
+      src_data_dir <- file.path(work_root, "data")
+      if (!dir.exists(src_data_dir)) {
+        stop("Expected data outputs were not created by generator scripts")
+      }
+
+      out_files <- list.files(src_data_dir, pattern = "\\.csv$", full.names = TRUE)
+      if (!dir.exists(.self$output_dir)) {
+        dir.create(.self$output_dir, recursive = TRUE, showWarnings = FALSE)
+      }
+      file.copy(out_files, .self$output_dir, overwrite = TRUE)
+
+      out <- .self$read_outputs()
+
+      if (interactive()) {
+        list2env(out, envir = .GlobalEnv)
+        alias_map <- list(
+          clinic_data = out$clinic_measurements_data,
+          inpatient_data = out$nhse_inpat_data,
+          outpatient_data = out$nhse_outpat_data,
+          emergency_data = out$nhse_ed_data,
+          deaths_data = out$nhse_engwal_deaths_data,
+          primary_care_meds_data = out$nhse_primcare_meds_data,
+          meds_data = out$nhse_primcare_meds_data,
+          country_region_data = out$country_region_data
+        )
+        list2env(alias_map, envir = .GlobalEnv)
+      }
+
+      invisible(out)
+    },
+
+    read_outputs = function() {
+      files <- c(
+        participant_data = "participant_data.csv",
+        clinic_measurements_data = "clinic_measurements_data.csv",
+        questionnaire_data = "questionnaire_data.csv",
+        nhse_outpat_data = "nhse_outpat_data.csv",
+        nhse_inpat_data = "nhse_inpat_data.csv",
+        nhse_engwal_deaths_data = "nhse_engwal_deaths_data.csv",
+        nhse_ed_data = "nhse_ed_data.csv",
+        nhse_primcare_meds_data = "nhse_primcare_meds_data.csv",
+        country_region_data = "country_region_data.csv"
+      )
+
+      out <- list()
+      for (nm in names(files)) {
+        p <- file.path(output_dir, files[[nm]])
+        out[[nm]] <- utils::read.csv(p, stringsAsFactors = FALSE)
+      }
+      out
+    }
+  )
+)

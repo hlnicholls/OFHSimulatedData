@@ -1,0 +1,14 @@
+^\.git$
+^\.github$
+^\.Rproj\.user$
+^legacy-scripts-baseline$
+^questionnaire_analysis$
+^questionnaire_docs$
+^data$
+^data_dictionaries$
+^src$
+^output$
+^TODO$
+^README\.md$
+^\.gitignore$
+^vignettes$
