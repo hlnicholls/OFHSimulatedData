@@ -4,6 +4,8 @@ Synthetic cohort data generator for health researchers.
 
 This repository creates test datasets that mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) for the Our Future Health cohort. It is designed so researchers can develop and test workflows safely before running them on real data.
 
+The output data is a general approximation of the schema intended for code development, not for statistical inference.
+
 ## What It Generates
 
 The generator produces CSV files for a synthetic cohort, including:
