@@ -110,10 +110,8 @@ section_df$activity_stairs_1_1 <- sample(
 	c("None", "1-5 times a day", "6-10 times a day", "11-15 times a day", "16-20 times a day", "More than 20 times a day", "Do not know", "Prefer not to answer"),
 	n, replace = TRUE, prob = c(0.14, 0.35, 0.22, 0.12, 0.07, 0.04, 0.03, 0.03)
 )
-section_df$activity_transport_1_m <- sample(
-	c("Car or motor vehicle", "Public transport", "Walk", "Cycle", "Mixed modes", "Prefer not to answer"),
-	n, replace = TRUE, prob = c(0.52, 0.10, 0.15, 0.05, 0.14, 0.04)
-)
+# Multi-select activity columns are populated from the PDF value catalog.
+section_df$activity_transport_1_m <- rep(NA_character_, n)
 
 activity_primary <- sample(
 	c("None of the above", "Walking for pleasure (not as a means of transport)", "Other exercises (e.g., swimming, cycling, keep fit, bowling)", "Strenuous sports", "Light DIY (e.g., DIY that does not require a lot of physical effort)", "Heavy DIY (e.g., DIY that requires a lot of physical effort)", "Prefer not to answer"),
@@ -125,23 +123,25 @@ activity_secondary <- sample(
 )
 add_second_activity <- runif(n) < 0.22
 
-section_df$activity_type_1_m <- activity_primary
+section_df$activity_type_1_m <- rep(NA_character_, n)
+
+activity_seed <- activity_primary
 for (i in seq_len(n)) {
 	if (isTRUE(add_second_activity[i]) &&
 		!activity_primary[i] %in% c("None of the above", "Prefer not to answer") &&
 		activity_primary[i] != activity_secondary[i]) {
-		section_df$activity_type_1_m[i] <- paste(activity_primary[i], activity_secondary[i], sep = "; ")
+		activity_seed[i] <- paste(activity_primary[i], activity_secondary[i], sep = "|")
 	}
 }
 
 activity_freq_levels <- c("Once in the last 4 weeks", "2-3 times in the last 4 weeks", "Once a week", "2-3 times a week", "4-5 times a week", "Every day", "Do not know", "Prefer not to answer")
 activity_dur_levels <- c("Less than 15 minutes", "Between 15 and 30 minutes", "Between 30 minutes and 1 hour", "Between 1 hour and 1.5 hours", "Between 1.5 hours and 2 hours", "Between 2 and 3 hours", "Over 3 hours", "Do not know", "Prefer not to answer")
 
-walk_idx <- which(grepl("Walking for pleasure", section_df$activity_type_1_m, fixed = TRUE))
-exercise_idx <- which(grepl("Other exercises", section_df$activity_type_1_m, fixed = TRUE))
-stren_idx <- which(grepl("Strenuous sports", section_df$activity_type_1_m, fixed = TRUE))
-light_diy_idx <- which(grepl("Light DIY", section_df$activity_type_1_m, fixed = TRUE))
-heavy_diy_idx <- which(grepl("Heavy DIY", section_df$activity_type_1_m, fixed = TRUE))
+walk_idx <- which(grepl("Walking for pleasure", activity_seed, fixed = TRUE))
+exercise_idx <- which(grepl("Other exercises", activity_seed, fixed = TRUE))
+stren_idx <- which(grepl("Strenuous sports", activity_seed, fixed = TRUE))
+light_diy_idx <- which(grepl("Light DIY", activity_seed, fixed = TRUE))
+heavy_diy_idx <- which(grepl("Heavy DIY", activity_seed, fixed = TRUE))
 
 section_df$activity_type_walk_1_1 <- rep(NA_character_, n)
 section_df$activity_type_walk_dur_1_1 <- rep(NA_character_, n)
@@ -548,14 +548,7 @@ social_secondary <- sample(
 	n, replace = TRUE, prob = c(0.20, 0.24, 0.17, 0.19, 0.20)
 )
 has_second_social <- runif(n) < 0.18
-section_df$lifestyle_social_rec_1_m <- social_primary
-for (i in seq_len(n)) {
-	if (isTRUE(has_second_social[i]) && !is.na(social_primary[i]) &&
-		!social_primary[i] %in% c("No regular group", "Prefer not to answer") &&
-		social_primary[i] != social_secondary[i]) {
-		section_df$lifestyle_social_rec_1_m[i] <- paste(social_primary[i], social_secondary[i], sep = "; ")
-	}
-}
+section_df$lifestyle_social_rec_1_m <- rep(NA_character_, n)
 
 section_df$lifestyle_screen_tv_hrs_1_1 <- rep(NA_real_, n)
 section_df$lifestyle_screen_tv_hrs_2_1 <- rep(NA_real_, n)

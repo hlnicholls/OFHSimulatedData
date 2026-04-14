@@ -168,6 +168,23 @@ OFHCohortSimulator <- methods::setRefClass(
       file.copy(list.files(data_dictionaries_dir, pattern = "\\.csv$", full.names = TRUE),
                 work_dicts, recursive = FALSE)
 
+      # Ensure PDF-derived questionnaire value catalog is available in the
+      # temp generator workspace used by questionnaire/section_utils.R.
+      pdf_catalog_name <- "questionnaire_column_unique_values_from_pdfs.csv"
+      pdf_catalog_sources <- c(
+        file.path(generator_scripts_dir, "questionnaire", pdf_catalog_name),
+        file.path(project_root, "questionnaire_analysis", pdf_catalog_name),
+        file.path(project_root, "inst", "generator_scripts", "questionnaire", pdf_catalog_name)
+      )
+      pdf_catalog_source <- pdf_catalog_sources[file.exists(pdf_catalog_sources)][1]
+      if (!is.na(pdf_catalog_source) && nzchar(pdf_catalog_source)) {
+        file.copy(
+          pdf_catalog_source,
+          file.path(work_scripts, "questionnaire", pdf_catalog_name),
+          overwrite = TRUE
+        )
+      }
+
       old_wd <- getwd()
       on.exit(setwd(old_wd), add = TRUE)
       setwd(work_scripts)

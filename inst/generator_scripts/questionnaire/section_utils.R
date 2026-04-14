@@ -265,15 +265,13 @@ sample_multi_select_responses <- function(vals, n, col_name) {
         # Degree holder: ~85 % chance they also report A-levels
         if (length(a_level_v) > 0 && runif(1) < 0.85) {
           chosen <- c(chosen, sample(a_level_v, 1))
-          # A-levels added: ~70 % chance O-levels/GCSEs too
-          if (length(o_level_v) > 0 && runif(1) < 0.70)
-            chosen <- c(chosen, sample(o_level_v, 1))
         }
-      } else if (length(a_level_v) > 0 && base %in% a_level_v) {
-        # A-levels only: ~75 % chance they also report O-levels/GCSEs
-        if (length(o_level_v) > 0 && runif(1) < 0.75)
+        # Degree holder without A-levels: ~40 % chance they report O-levels/GCSEs
+        if (!any(chosen %in% a_level_v) && length(o_level_v) > 0 && runif(1) < 0.40) {
           chosen <- c(chosen, sample(o_level_v, 1))
+        }
       }
+      # A-levels are never combined with O-levels/GCSEs
       paste(chosen, collapse = "|")
     }, character(1)))
   }

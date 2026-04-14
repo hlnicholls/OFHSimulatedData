@@ -131,28 +131,16 @@ if (length(prev_civil_idx) > 0)
 section_df$housing_curr_add_yrs_1_1 <- as.character(
   pmax(0, round(rexp(n, rate = 0.07)))
 )
-section_df$housing_people_1_1 <- as.character(
-  sample(1:10, n, replace = TRUE,
-    prob = c(0.22, 0.35, 0.20, 0.12, 0.05, 0.03, 0.015, 0.01, 0.005, 0.005))
-)
+# Multi-select household columns are populated from the PDF value catalog.
+section_df$housing_people_1_1 <- rep(NA_character_, n)
 section_df$housing_vehicles_1_1 <- sample(
   c("None", "One", "Two", "Three", "Four or more", "Do not know", "Prefer not to answer"),
   n, replace = TRUE,
   prob = c(0.10, 0.35, 0.35, 0.10, 0.05, 0.02, 0.03)
 )
 
-# Household composition (conditional on multiple occupants).
+# Household composition is populated from the PDF value catalog.
 section_df$housing_people_relate_1_m <- rep(NA_character_, n)
-multi_idx <- which(as.integer(section_df$housing_people_1_1) > 1)
-if (length(multi_idx) > 0) {
-  section_df$housing_people_relate_1_m[multi_idx] <- sample(
-    c("Husband, wife or partner", "Son or daughter", "Brother or sister",
-      "Mother or father", "Grandchild", "Grandparent",
-      "Other related", "Other unrelated", "Prefer not to answer"),
-    length(multi_idx), replace = TRUE,
-    prob = c(0.60, 0.15, 0.03, 0.05, 0.02, 0.02, 0.05, 0.05, 0.03)
-  )
-}
 
 section_df <- apply_pdf_value_catalog(section_df, questionnaire_data, cols)
 

@@ -105,16 +105,9 @@ is_work_detail_eligible <- vapply(status_tokens, function(tokens) {
 }, logical(1))
 work_idx <- which(is_work_detail_eligible)
 
-# Education qualification (all respondents).
-section_df$edu_qual_1_m <- sample(
-  c("None of the above", "College or University degree",
-    "A levels/AS levels/BTEC or equivalent", "O levels/GCSEs or equivalent",
-    "CSEs or equivalent", "NVQ or HND or HNC or equivalent",
-    "Other professional qualifications e.g., nursing, teaching",
-    "Prefer not to answer"),
-  n, replace = TRUE,
-  prob = c(0.05, 0.32, 0.18, 0.22, 0.06, 0.08, 0.07, 0.02)
-)
+# Education qualification is populated from the PDF value catalog so multi-select
+# responses (pipe-delimited) can be generated when appropriate.
+section_df$edu_qual_1_m <- rep(NA_character_, n)
 
 section_df$work_yrs_1_1      <- rep(NA_character_, n)
 section_df$work_wk_hrs_1_1   <- rep(NA_character_, n)

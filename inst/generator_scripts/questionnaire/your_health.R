@@ -440,12 +440,8 @@ if (length(idx_v1) > 0)
 # SPECIFIC HEALTH COLUMNS
 # ===========================================================================
 
-section_df$health_dental_1_m <- sample(
-  c("Dental check-up", "Tooth extraction", "Filling or crown work", "Gum treatment",
-    "Orthodontic treatment", "Dentures fitted/adjusted", "Pain or emergency visit",
-    "None of the above", "Prefer not to answer"),
-  n, replace = TRUE, prob = c(0.45, 0.08, 0.12, 0.05, 0.02, 0.03, 0.06, 0.15, 0.04)
-)
+# Multi-select columns are populated from the PDF value catalog.
+section_df$health_dental_1_m <- rep(NA_character_, n)
 
 section_df$health_falls_1_1 <- sample(
   c("No falls", "Only one fall", "More than one fall", "Prefer not to answer"),
@@ -468,22 +464,9 @@ section_df$health_pain_leg_1_1 <- sample(
   yn_options, n, replace = TRUE, prob = c(0.02, 0.03, 0.88, 0.07)
 )
 
-acute_pain_options <- c(
-  "Headache", "Back pain", "Neck/shoulder pain", "Joint pain (knee/hip/other)",
-  "Abdominal pain", "Chest pain", "Muscle pain", "Tooth/facial pain",
-  "None of the above", "Prefer not to answer"
-)
-section_df$health_pain_acute_1_m <- sample(
-  acute_pain_options, n, replace = TRUE,
-  prob = c(0.15, 0.22, 0.14, 0.16, 0.06, 0.03, 0.08, 0.04, 0.08, 0.04)
-)
+# Multi-select acute pain columns are populated from the PDF value catalog.
+section_df$health_pain_acute_1_m <- rep(NA_character_, n)
 section_df$health_pain_acute_2_m <- rep(NA_character_, n)
-multi_pain_idx <- sample(seq_len(n), round(0.20 * n))
-if (length(multi_pain_idx) > 0)
-  section_df$health_pain_acute_2_m[multi_pain_idx] <- sample(
-    acute_pain_options, length(multi_pain_idx), replace = TRUE,
-    prob = c(0.12, 0.20, 0.16, 0.18, 0.08, 0.04, 0.10, 0.05, 0.05, 0.02)
-  )
 
 # Chronic headache (v1 only).
 section_df$health_pain_chronic_headache_1_1 <- rep(NA_character_, n)
