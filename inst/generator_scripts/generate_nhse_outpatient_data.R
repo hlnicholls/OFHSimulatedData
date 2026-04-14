@@ -60,6 +60,16 @@ generate_opcs4_entry <- function() {
 # 4. Create Outpatient Function
 create_outpat <- function(pids) {
   n_rows <- length(pids)
+  if (n_rows == 0) {
+    df <- data.frame(
+      pid = character(0),
+      apptdate = as.Date(character(0)),
+      stringsAsFactors = FALSE
+    )
+    for (nm in sprintf("diag_4_%02d", 1:12)) df[[nm]] <- character(0)
+    for (nm in sprintf("opertn_%02d", 1:24)) df[[nm]] <- character(0)
+    return(df)
+  }
   
   df <- data.frame(
     pid = pids,

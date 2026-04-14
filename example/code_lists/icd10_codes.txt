@@ -1,0 +1,9 @@
+code	description
+I210	STEMI of anterolateral wall
+I500	Congestive heart failure
+I639	Cerebral infarction unspecified
+E119	Type 2 diabetes mellitus without complications
+J449	COPD unspecified
+N189	Chronic kidney disease unspecified
+C349	Malignant neoplasm of bronchus or lung unspecified
+R99	Ill-defined and unknown cause of mortality

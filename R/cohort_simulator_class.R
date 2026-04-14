@@ -81,14 +81,22 @@ OFHCohortSimulator <- methods::setRefClass(
       )
     },
 
-    set_code_pools = function(icd10 = NULL, opcs4 = NULL, bnf_codes = NULL) {
+    set_code_pools = function(icd10 = NULL, opcs4 = NULL, bnf_codes = NULL, bnf_meds = NULL) {
       if (!is.null(icd10) && length(icd10) > 0) {
-        icd10 <- as.character(icd10)
-        if (is.null(names(icd10)) || any(names(icd10) == "")) names(icd10) <- icd10
+        icd10_vals <- as.character(unname(icd10))
+        icd10_nms <- names(icd10)
+        if (is.null(icd10_nms) || any(icd10_nms == "")) {
+          icd10_nms <- icd10_vals
+        }
+        icd10 <- stats::setNames(icd10_vals, icd10_nms)
       }
       if (!is.null(opcs4) && length(opcs4) > 0) {
-        opcs4 <- as.character(opcs4)
-        if (is.null(names(opcs4)) || any(names(opcs4) == "")) names(opcs4) <- opcs4
+        opcs4_vals <- as.character(unname(opcs4))
+        opcs4_nms <- names(opcs4)
+        if (is.null(opcs4_nms) || any(opcs4_nms == "")) {
+          opcs4_nms <- opcs4_vals
+        }
+        opcs4 <- stats::setNames(opcs4_vals, opcs4_nms)
       }
 
       cc <- list()
@@ -101,21 +109,92 @@ OFHCohortSimulator <- methods::setRefClass(
         cc$nhse_engwal_deaths_data <- list(icd10_descriptions = icd10_map)
       }
 
-      if (!is.null(bnf_codes) && length(bnf_codes) > 0) {
-        cc$nhse_primcare_meds_data <- list(bnf_codes = as.character(bnf_codes))
+      if (!is.null(bnf_codes) || !is.null(bnf_meds)) {
+        meds_cfg <- list()
+        if (!is.null(bnf_codes) && length(bnf_codes) > 0) {
+          meds_cfg$bnf_codes <- as.character(bnf_codes)
+        }
+        if (!is.null(bnf_meds) && nrow(as.data.frame(bnf_meds)) > 0) {
+          meds_cfg$bnf_meds <- as.data.frame(bnf_meds, stringsAsFactors = FALSE)
+        }
+        cc$nhse_primcare_meds_data <- meds_cfg
       }
 
       config$code_config <<- cc
       invisible(.self)
     },
 
-    build_config = function(n = 5000) {
-      cc <- if (!is.null(config$code_config)) config$code_config else list()
-      config <<- ofh_build_config(n = n, code_config = cc)
+    build_config = function(n = 5000, proportions = NULL, record_multipliers = NULL, code_config = NULL) {
+      assert_named_numeric_list <- function(x, defaults, label) {
+        if (is.null(x)) return(defaults)
+        if (!is.list(x)) stop(sprintf("%s must be a named list", label))
+        if (is.null(names(x)) || any(!nzchar(names(x)))) {
+          stop(sprintf("%s must be a named list", label))
+        }
+        unknown <- setdiff(names(x), names(defaults))
+        if (length(unknown) > 0) {
+          stop(sprintf(
+            "Unknown %s names: %s",
+            label,
+            paste(unknown, collapse = ", ")
+          ))
+        }
+        for (nm in names(x)) {
+          v <- x[[nm]]
+          if (!is.numeric(v) || length(v) != 1 || is.na(v)) {
+            stop(sprintf("%s$%s must be a single numeric value", label, nm))
+          }
+        }
+        .ofh_merge_lists(defaults, x)
+      }
+
+      base_props <- ofh_default_proportions()
+      base_mults <- ofh_default_record_multipliers()
+
+      merged_props <- assert_named_numeric_list(proportions, base_props, "proportions")
+      merged_mults <- assert_named_numeric_list(record_multipliers, base_mults, "record_multipliers")
+
+      # Multi-record datasets cannot have positive total_records when
+      # unique_pids resolves to zero. Keep multipliers consistent with
+      # explicit zero-coverage requests.
+      multi_record_map <- c(
+        nhse_outpat = "nhse_outpat",
+        nhse_inpat = "nhse_inpat",
+        nhse_ed = "nhse_ed"
+      )
+      for (nm in names(multi_record_map)) {
+        prop_name <- multi_record_map[[nm]]
+        if (!is.null(merged_props[[prop_name]]) && merged_props[[prop_name]] <= 0) {
+          merged_mults[[nm]] <- 0
+        }
+      }
+
+      if (!is.null(code_config) && !is.list(code_config)) {
+        stop("code_config must be a list")
+      }
+
+      cc_existing <- if (!is.null(config$code_config)) config$code_config else list()
+      cc_override <- if (!is.null(code_config)) code_config else list()
+      cc <- .ofh_merge_lists(cc_existing, cc_override)
+
+      config <<- ofh_build_config(
+        n = n,
+        proportions = merged_props,
+        record_multipliers = merged_mults,
+        code_config = cc
+      )
       invisible(.self)
     },
 
-    run_all = function(n = 5000, seed = NULL, save_csv = TRUE, return_objects = TRUE) {
+    run_all = function(
+      n = 5000,
+      seed = NULL,
+      save_csv = TRUE,
+      return_objects = TRUE,
+      proportions = NULL,
+      record_multipliers = NULL,
+      code_config = NULL
+    ) {
       if (!is.null(seed)) seed <<- as.integer(seed)
       if (!is.logical(save_csv) || length(save_csv) != 1 || is.na(save_csv)) {
         stop("save_csv must be a single TRUE/FALSE value")
@@ -127,7 +206,12 @@ OFHCohortSimulator <- methods::setRefClass(
         stop("At least one of save_csv or return_objects must be TRUE")
       }
 
-      build_config(n = n)
+      build_config(
+        n = n,
+        proportions = proportions,
+        record_multipliers = record_multipliers,
+        code_config = code_config
+      )
 
       cat("\n=== GENERATION CONFIGURATION ===\n")
       cat("Cohort size:", config$total_pid_count, "participants\n")
@@ -141,7 +225,9 @@ OFHCohortSimulator <- methods::setRefClass(
       } else {
         0
       }
-      bnf_count <- if (!is.null(config$code_config$nhse_primcare_meds_data$bnf_codes)) {
+      bnf_count <- if (!is.null(config$code_config$nhse_primcare_meds_data$bnf_meds)) {
+        nrow(as.data.frame(config$code_config$nhse_primcare_meds_data$bnf_meds))
+      } else if (!is.null(config$code_config$nhse_primcare_meds_data$bnf_codes)) {
         length(config$code_config$nhse_primcare_meds_data$bnf_codes)
       } else {
         0

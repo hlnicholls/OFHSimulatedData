@@ -32,11 +32,19 @@ test_that("default output folder is created", {
 
 test_that("code files can be used for ICD10/OPCS4/BNF", {
   td <- tempdir()
-  icd10_file <- file.path(td, "icd10_codes.txt")
+  icd10_file <- file.path(td, "icd10_codes.csv")
   opcs4_file <- file.path(td, "opcs4_codes.csv")
   bnf_file <- file.path(td, "bnf_codes.txt")
 
-  writeLines(c("I210", "I500", "I639"), icd10_file)
+  writeLines(
+    c(
+      "code,description",
+      "I210,STEMI of anterolateral wall",
+      "I500,Congestive heart failure",
+      "I639,Cerebral infarction unspecified"
+    ),
+    icd10_file
+  )
   writeLines(c("0212000B0", "0601023A0"), bnf_file)
   writeLines(c("K401", "K451", "K561"), opcs4_file)
 
@@ -52,6 +60,97 @@ test_that("code files can be used for ICD10/OPCS4/BNF", {
 
   expect_equal(nrow(out$participant_data), 70)
   expect_true("pid" %in% names(out$nhse_primcare_meds_data))
+})
+
+test_that("txt code files support tab-separated code and description format", {
+  td <- tempdir()
+  icd10_file <- file.path(td, "icd10_desc_codes.txt")
+  opcs4_file <- file.path(td, "opcs4_desc_codes.txt")
+
+  writeLines(
+    c(
+      "code\tdescription",
+      "I210\tSTEMI of anterolateral wall",
+      "I500\tCongestive heart failure"
+    ),
+    icd10_file
+  )
+  writeLines(
+    c(
+      "code\tdescription",
+      "K401\tPercutaneous transluminal balloon angioplasty of coronary artery",
+      "K451\tInsertion of drug-eluting stent into coronary artery"
+    ),
+    opcs4_file
+  )
+
+  out <- generate_ofh_cohort(
+    n = 90,
+    seed = 21,
+    icd10_file = icd10_file,
+    opcs4_file = opcs4_file,
+    bnf_codes_file = "bnf_medications.csv",
+    save_csv = FALSE,
+    return_objects = TRUE
+  )
+
+  outpat <- out$nhse_outpat_data
+  non_missing_diag <- outpat$diag_4_01[!is.na(outpat$diag_4_01)]
+  expect_true(length(non_missing_diag) > 0)
+  expect_true(any(grepl("I210 = STEMI of anterolateral wall|I500 = Congestive heart failure", non_missing_diag)))
+})
+
+test_that("code-only TXT ICD10/OPCS4 is rejected", {
+  td <- tempdir()
+  icd10_file <- file.path(td, "icd10_codes_only.txt")
+  opcs4_file <- file.path(td, "opcs4_codes_only.txt")
+
+  writeLines(c("I500", "N189"), icd10_file)
+  writeLines(c("K401", "K451"), opcs4_file)
+
+  expect_error(
+    generate_ofh_cohort(
+      n = 120,
+      seed = 31,
+      icd10_file = icd10_file,
+      opcs4_file = opcs4_file,
+      bnf_codes_file = "bnf_medications.csv",
+      save_csv = FALSE,
+      return_objects = TRUE
+    ),
+    "must be tab-separated"
+  )
+})
+
+test_that("structured BNF CSV supports custom code, name, and formulation", {
+  td <- tempdir()
+  bnf_file <- file.path(td, "bnf_structured_codes.csv")
+
+  writeLines(
+    c(
+      "BNFCode,BNFName,Formulation,Strength",
+      "ZZZ0001AA,Custom Test Drug A,tablets,10 mg",
+      "ZZZ0002BB,Custom Test Drug B,inhaler,100 mcg"
+    ),
+    bnf_file
+  )
+
+  out <- generate_ofh_cohort(
+    n = 90,
+    seed = 41,
+    bnf_codes_file = bnf_file,
+    save_csv = FALSE,
+    return_objects = TRUE
+  )
+
+  meds <- out$nhse_primcare_meds_data
+  expected_codes <- c("ZZZ0001AA", "ZZZ0002BB")
+
+  expect_equal(nrow(out$participant_data), 90)
+  expect_true(nrow(meds) > 0)
+  expect_true(all(na.omit(unique(meds$paidbnfcode)) %in% expected_codes))
+  expect_true(all(unique(meds$prescribedbnfname) %in% c("Custom Test Drug A", "Custom Test Drug B")))
+  expect_true(all(unique(meds$prescribedformulation) %in% c("tablets", "inhaler")))
 })
 
 test_that("vector and file inputs are mutually exclusive", {
@@ -115,4 +214,76 @@ test_that("at least one output target is required", {
     generate_ofh_cohort(n = 20, save_csv = FALSE, return_objects = FALSE),
     "At least one"
   )
+})
+
+test_that("probability settings are configurable via generate_ofh_cohort", {
+  out <- generate_ofh_cohort(
+    n = 120,
+    seed = 101,
+    save_csv = FALSE,
+    return_objects = TRUE,
+    proportions = list(
+      nhse_outpat = 0.10,
+      nhse_inpat = 0.10,
+      nhse_ed = 0.10
+    ),
+    record_multipliers = list(
+      nhse_outpat = 0.15,
+      nhse_inpat = 0.12,
+      nhse_ed = 0.14
+    ),
+    code_config = list(
+      nhse_outpat_data = list(diag_4_02_missing_prob = 0.65)
+    )
+  )
+
+  expect_equal(nrow(out$participant_data), 120)
+  expect_equal(nrow(out$questionnaire_data), 120)
+  expect_lt(nrow(out$nhse_outpat_data), 60)
+  expect_lt(nrow(out$nhse_inpat_data), 60)
+  expect_lt(nrow(out$nhse_ed_data), 60)
+})
+
+test_that("partial probability override is accepted", {
+  out <- generate_ofh_cohort(
+    n = 75,
+    seed = 202,
+    save_csv = FALSE,
+    return_objects = TRUE,
+    proportions = list(nhse_outpat = 0.10),
+    record_multipliers = list(nhse_outpat = 1.05)
+  )
+
+  expect_equal(nrow(out$participant_data), 75)
+})
+
+test_that("unknown probability names are rejected", {
+  expect_error(
+    generate_ofh_cohort(
+      n = 30,
+      save_csv = FALSE,
+      return_objects = TRUE,
+      proportions = list(not_a_dataset = 0.5)
+    ),
+    "Unknown proportions names"
+  )
+})
+
+test_that("zero proportions auto-adjust multi-record multipliers", {
+  out <- generate_ofh_cohort(
+    n = 60,
+    seed = 303,
+    save_csv = FALSE,
+    return_objects = TRUE,
+    proportions = list(
+      nhse_outpat = 0,
+      nhse_inpat = 0,
+      nhse_ed = 0
+    )
+  )
+
+  expect_equal(nrow(out$participant_data), 60)
+  expect_equal(nrow(out$nhse_outpat_data), 0)
+  expect_equal(nrow(out$nhse_inpat_data), 0)
+  expect_equal(nrow(out$nhse_ed_data), 0)
 })

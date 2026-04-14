@@ -72,6 +72,18 @@ create_inpat <- function(pids) {
   n_diag_cols <- 20
   diag_col_names <- sprintf("diag_4_%02d", 1:n_diag_cols)
 
+  if (n_rows == 0) {
+    df <- data.frame(
+      pid = character(0),
+      admidate = as.Date(character(0)),
+      epistart = as.Date(character(0)),
+      stringsAsFactors = FALSE
+    )
+    for (nm in diag_col_names) df[[nm]] <- character(0)
+    for (nm in sprintf("opertn_%02d", 1:24)) df[[nm]] <- character(0)
+    return(df)
+  }
+
   diag_matrix <- t(sapply(1:n_rows, function(i) {
     n_diags <- if(runif(1) < code_cfg$single_diag_prob) 1 else sample(2:3, 1)
     diagnoses <- sapply(1:n_diags, function(j) generate_icd10_entry())

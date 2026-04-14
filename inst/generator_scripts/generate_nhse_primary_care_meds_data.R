@@ -108,11 +108,39 @@ bnf_meds <- data.frame(
 )
 
 custom_bnf_codes <- NULL
+custom_bnf_meds <- NULL
 if (!is.null(config) &&
     !is.null(config$code_config) &&
-    !is.null(config$code_config$nhse_primcare_meds_data) &&
-    !is.null(config$code_config$nhse_primcare_meds_data$bnf_codes)) {
-  custom_bnf_codes <- as.character(config$code_config$nhse_primcare_meds_data$bnf_codes)
+    !is.null(config$code_config$nhse_primcare_meds_data)) {
+  custom_bnf_codes <- config$code_config$nhse_primcare_meds_data$bnf_codes
+  custom_bnf_meds <- config$code_config$nhse_primcare_meds_data$bnf_meds
+}
+
+if (!is.null(custom_bnf_meds)) {
+  custom_bnf_meds <- as.data.frame(custom_bnf_meds, stringsAsFactors = FALSE)
+  required_custom_cols <- c("BNFCode", "BNFName", "Formulation")
+  if (!all(required_custom_cols %in% names(custom_bnf_meds))) {
+    stop("Custom bnf_meds must include columns: BNFCode, BNFName, Formulation")
+  }
+  if (!"Strength" %in% names(custom_bnf_meds)) {
+    custom_bnf_meds$Strength <- NA_character_
+  }
+
+  custom_bnf_meds$BNFCode <- trimws(as.character(custom_bnf_meds$BNFCode))
+  custom_bnf_meds$BNFName <- trimws(as.character(custom_bnf_meds$BNFName))
+  custom_bnf_meds$Formulation <- trimws(as.character(custom_bnf_meds$Formulation))
+  custom_bnf_meds$Strength <- trimws(as.character(custom_bnf_meds$Strength))
+  custom_bnf_meds$Strength[custom_bnf_meds$Strength == ""] <- NA_character_
+
+  if (any(!nzchar(custom_bnf_meds$BNFCode) | !nzchar(custom_bnf_meds$BNFName) | !nzchar(custom_bnf_meds$Formulation))) {
+    stop("Custom bnf_meds rows must include non-empty BNFCode, BNFName, and Formulation")
+  }
+
+  bnf_meds <- unique(custom_bnf_meds[, c("BNFCode", "BNFName", "Strength", "Formulation"), drop = FALSE])
+} else if (!is.null(custom_bnf_codes)) {
+  custom_bnf_codes <- as.character(custom_bnf_codes)
+  custom_bnf_codes <- trimws(custom_bnf_codes)
+  custom_bnf_codes <- unique(custom_bnf_codes[nzchar(custom_bnf_codes)])
 }
 
 if (!is.null(custom_bnf_codes) && length(custom_bnf_codes) > 0) {
@@ -237,18 +265,19 @@ create_primcare_meds <- function(n_people) {
       for (j in 1:n_prescriptions) {
         med_idx <- sample(1:nrow(bnf_meds), 1)
         formulation <- bnf_meds$Formulation[med_idx]
+        formulation_key <- tolower(trimws(formulation))
         was_dispensed <- runif(1) < 0.90
         
         # Set quantity based on formulation type
-        if (formulation == "tablets" || formulation == "capsules") {
+        if (formulation_key %in% c("tablet", "tablets", "capsule", "capsules")) {
           quantity <- sample(c(28, 30, 56, 60, 84, 90), 1)
-        } else if (formulation == "injection") {
+        } else if (formulation_key %in% c("injection", "injections")) {
           quantity <- sample(c(1, 2, 3), 1)  # Pens or vials
-        } else if (formulation == "inhaler") {
+        } else if (formulation_key %in% c("inhaler", "inhalers")) {
           quantity <- 1  # Single inhaler
-        } else if (formulation == "patches") {
+        } else if (formulation_key %in% c("patch", "patches")) {
           quantity <- sample(c(4, 8, 12), 1)  # Box of patches
-        } else if (formulation == "sachets") {
+        } else if (formulation_key %in% c("sachet", "sachets")) {
           quantity <- sample(c(28, 56, 84), 1)  # Box of sachets
         } else {
           quantity <- sample(c(1, 2), 1)  # Generic fallback
@@ -279,7 +308,7 @@ create_primcare_meds <- function(n_people) {
           paiddmdcode = if (was_dispensed) sample(paiddmd_pool, 1) else NA_character_,
           prescribedbnfcode = paste0(bnf_meds$BNFCode[med_idx], paste0(sample(c(LETTERS, 0:9), 6, replace = TRUE), collapse = "")),
           prescribedbnfname = bnf_meds$BNFName[med_idx],
-          prescribedformulation = sample(paid_formulation_pool, 1, prob = paid_formulation_prob),
+          prescribedformulation = bnf_meds$Formulation[med_idx],
           prescribedmedicinestrength = ifelse(is.na(bnf_meds$Strength[med_idx]), NA, bnf_meds$Strength[med_idx]),
           prescribedquantity = sample_prescribed_quantity(),
           prescribeddmdcode = sample(paiddmd_pool, 1),

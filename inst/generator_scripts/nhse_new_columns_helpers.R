@@ -291,6 +291,7 @@ add_nhse_outpat_new_columns <- function(df) {
   script_name <- "06_generate_nhse_eng_outpat.R"
   spec_df <- load_nhse_new_col_spec()
   n <- nrow(df)
+  if (n == 0) return(df)
 
   df$admincat <- sample_from_spec_options(spec_df, script_name, "admincat", n)
   df$attended <- sample_from_spec_options(spec_df, script_name, "attended", n)
@@ -332,6 +333,7 @@ add_nhse_inpat_new_columns <- function(df) {
   script_name <- "07_generate_nhse_eng_inpat.R"
   spec_df <- load_nhse_new_col_spec()
   n <- nrow(df)
+  if (n == 0) return(df)
 
   df$acscflag <- sample_from_spec_options(spec_df, script_name, "acscflag", n)
   df$admimeth <- sample_from_spec_options(spec_df, script_name, "admimeth", n)
@@ -448,6 +450,7 @@ add_nhse_ed_new_columns <- function(df) {
   script_name <- "09_generate_nhse_eng_ed.R"
   spec_df <- load_nhse_new_col_spec()
   n <- nrow(df)
+  if (n == 0) return(df)
 
   df$aearrivalmode <- sample_from_spec_options(spec_df, script_name, "aearrivalmode", n)
   df$aeattendcat <- sample_from_spec_options(spec_df, script_name, "aeattendcat", n)

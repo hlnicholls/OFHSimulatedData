@@ -43,6 +43,16 @@ pids_for_data <- c(ed_pids_pool, sample(ed_pids_pool, total_records - n_ed_peopl
 # 5. Create ED Function
 create_ed <- function(pids) {
   n_rows <- length(pids)
+  if (n_rows == 0) {
+    df <- data.frame(
+      pid = character(0),
+      arrivaldate = as.Date(character(0)),
+      diagscheme = character(0),
+      stringsAsFactors = FALSE
+    )
+    for (nm in sprintf("diag_%02d", 1:12)) df[[nm]] <- character(0)
+    return(df)
+  }
   
   # Randomly assign schemes
   diagscheme_values <- sample(
