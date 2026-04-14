@@ -1,4 +1,4 @@
-#' OOP simulator class for OFH synthetic cohort generation
+#' Simulator class for OFH synthetic cohort generation
 #'
 #' @field project_root Kept for API compatibility; package assets are loaded from installed files.
 #' @field generator_scripts_dir Path to template generator scripts.
@@ -44,7 +44,12 @@ OFHCohortSimulator <- methods::setRefClass(
       if (is.null(output_dir)) {
         out_dir <- file.path(normalizePath(getwd(), mustWork = TRUE), "output")
       } else {
-        out_dir <- normalizePath(output_dir, mustWork = FALSE)
+        # Resolve relative paths against caller working directory so output
+        # location remains stable even when run_all() temporarily changes wd.
+        if (!grepl("^(~|/|[A-Za-z]:[/\\\\])", output_dir)) {
+          out_dir <- file.path(normalizePath(getwd(), mustWork = TRUE), output_dir)
+        }
+        out_dir <- normalizePath(path.expand(out_dir), mustWork = FALSE)
       }
       output_dir <<- out_dir
       if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
@@ -110,8 +115,18 @@ OFHCohortSimulator <- methods::setRefClass(
       invisible(.self)
     },
 
-    run_all = function(n = 5000, seed = NULL) {
+    run_all = function(n = 5000, seed = NULL, save_csv = TRUE, return_objects = TRUE) {
       if (!is.null(seed)) seed <<- as.integer(seed)
+      if (!is.logical(save_csv) || length(save_csv) != 1 || is.na(save_csv)) {
+        stop("save_csv must be a single TRUE/FALSE value")
+      }
+      if (!is.logical(return_objects) || length(return_objects) != 1 || is.na(return_objects)) {
+        stop("return_objects must be a single TRUE/FALSE value")
+      }
+      if (!isTRUE(save_csv) && !isTRUE(return_objects)) {
+        stop("At least one of save_csv or return_objects must be TRUE")
+      }
+
       build_config(n = n)
 
       cat("\n=== GENERATION CONFIGURATION ===\n")
@@ -138,6 +153,7 @@ OFHCohortSimulator <- methods::setRefClass(
 
       work_root <- tempfile("ofh_build_")
       dir.create(work_root, recursive = TRUE, showWarnings = FALSE)
+      work_root <- normalizePath(work_root, mustWork = TRUE)
       on.exit(unlink(work_root, recursive = TRUE, force = TRUE), add = TRUE)
 
       work_scripts <- file.path(work_root, "generator_scripts")
@@ -179,33 +195,41 @@ OFHCohortSimulator <- methods::setRefClass(
         stop("Expected data outputs were not created by generator scripts")
       }
 
-      out_files <- list.files(src_data_dir, pattern = "\\.csv$", full.names = TRUE)
-      if (!dir.exists(.self$output_dir)) {
-        dir.create(.self$output_dir, recursive = TRUE, showWarnings = FALSE)
-      }
-      file.copy(out_files, .self$output_dir, overwrite = TRUE)
-
-      out <- .self$read_outputs()
-
-      if (interactive()) {
-        list2env(out, envir = .GlobalEnv)
-        alias_map <- list(
-          clinic_data = out$clinic_measurements_data,
-          inpatient_data = out$nhse_inpat_data,
-          outpatient_data = out$nhse_outpat_data,
-          emergency_data = out$nhse_ed_data,
-          deaths_data = out$nhse_engwal_deaths_data,
-          primary_care_meds_data = out$nhse_primcare_meds_data,
-          meds_data = out$nhse_primcare_meds_data,
-          country_region_data = out$country_region_data
-        )
-        list2env(alias_map, envir = .GlobalEnv)
+      if (isTRUE(save_csv)) {
+        out_files <- list.files(src_data_dir, pattern = "\\.csv$", full.names = TRUE)
+        if (!dir.exists(.self$output_dir)) {
+          dir.create(.self$output_dir, recursive = TRUE, showWarnings = FALSE)
+        }
+        file.copy(out_files, .self$output_dir, overwrite = TRUE)
+        message(sprintf("CSV files saved to: %s", .self$output_dir))
       }
 
-      invisible(out)
+      if (isTRUE(return_objects)) {
+        read_dir <- if (isTRUE(save_csv)) .self$output_dir else src_data_dir
+        out <- .self$read_outputs(data_dir = read_dir)
+
+        if (interactive()) {
+          list2env(out, envir = .GlobalEnv)
+          alias_map <- list(
+            clinic_data = out$clinic_measurements_data,
+            inpatient_data = out$nhse_inpat_data,
+            outpatient_data = out$nhse_outpat_data,
+            emergency_data = out$nhse_ed_data,
+            deaths_data = out$nhse_engwal_deaths_data,
+            primary_care_meds_data = out$nhse_primcare_meds_data,
+            meds_data = out$nhse_primcare_meds_data,
+            country_region_data = out$country_region_data
+          )
+          list2env(alias_map, envir = .GlobalEnv)
+        }
+
+        return(invisible(out))
+      }
+
+      invisible(NULL)
     },
 
-    read_outputs = function() {
+    read_outputs = function(data_dir = output_dir) {
       files <- c(
         participant_data = "participant_data.csv",
         clinic_measurements_data = "clinic_measurements_data.csv",
@@ -220,7 +244,7 @@ OFHCohortSimulator <- methods::setRefClass(
 
       out <- list()
       for (nm in names(files)) {
-        p <- file.path(output_dir, files[[nm]])
+        p <- file.path(data_dir, files[[nm]])
         out[[nm]] <- utils::read.csv(p, stringsAsFactors = FALSE)
       }
       out

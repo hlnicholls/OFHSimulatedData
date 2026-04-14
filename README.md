@@ -1,8 +1,6 @@
 # OFHSimulatedData
 
-Synthetic cohort data generator for health researchers.
-
-This repository creates test datasets that mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) for the Our Future Health cohort. It is designed so researchers can develop and test workflows safely before running them on real data.
+This repository creates synthetic datasets that aim to mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) available in the Our Future Health cohort. It is designed so researchers can develop and test workflows before running them on the much larger real data.
 
 The output data is a general approximation of the schema intended for code development, not for statistical inference.
 
@@ -82,5 +80,22 @@ out <- generate_ofh_cohort(
 	icd10_file = "icd10_codes.txt",
 	opcs4_file = "opcs4_codes.csv",
 	bnf_codes_file = "bnf_codes.txt"
+)
+
+# return objects only in the R environment (no CSV files written)
+out_objects_only <- generate_ofh_cohort(
+	n = 1000,
+	seed = 123,
+	save_csv = FALSE,
+	return_objects = TRUE
+)
+
+# write CSV files only (no returned R objects)
+generate_ofh_cohort(
+	n = 1000,
+	seed = 123,
+	save_csv = TRUE,
+	return_objects = FALSE,
+	output_dir = "example"
 )
 ```

@@ -35,7 +35,7 @@ country_region <- data.frame(
 local({
   p <- "../data/country_region_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  write.table(country_region, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8")
+  suppressWarnings(write.table(country_region, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 unique_pids_region <- length(unique(country_region$pid))
 cat("\nGenerated country_region_data.csv\n")

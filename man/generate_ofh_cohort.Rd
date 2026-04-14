@@ -12,8 +12,10 @@ generate_ofh_cohort(
   opcs4_file = NULL,
   bnf_codes = NULL,
   bnf_codes_file = NULL,
-  write_csv = TRUE,
-  output_dir = NULL
+  save_csv = TRUE,
+  return_objects = TRUE,
+  output_dir = NULL,
+  write_csv = NULL
 )
 }
 \arguments{
@@ -25,11 +27,13 @@ generate_ofh_cohort(
   \item{opcs4_file}{Optional path to a TXT/CSV file with one OPCS-4 code per line.}
   \item{bnf_codes}{Optional vector of BNF code strings.}
   \item{bnf_codes_file}{Optional path to a TXT/CSV file with one BNF code per line.}
-  \item{write_csv}{Whether to write CSV outputs to disk.}
-  \item{output_dir}{Output directory when \code{write_csv = TRUE}.}
+  \item{save_csv}{Whether to write CSV outputs to disk.}
+  \item{return_objects}{Whether to return generated data frames as an R object.}
+  \item{output_dir}{Output directory when \code{save_csv = TRUE}.}
+  \item{write_csv}{Deprecated alias for \code{save_csv}.}
 }
-\value{Named list of generated data frames.}
+\value{Named list of generated data frames when \code{return_objects = TRUE}; otherwise invisible \code{NULL}.}
 \examples{
-out <- generate_ofh_cohort(n = 200, seed = 123, write_csv = FALSE)
+out <- generate_ofh_cohort(n = 200, seed = 123, save_csv = FALSE, return_objects = TRUE)
 names(out)
 }

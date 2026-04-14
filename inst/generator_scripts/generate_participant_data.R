@@ -102,7 +102,7 @@ participant <- data.frame(
 local({
   p <- "../data/participant_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  write.table(participant, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8")
+  suppressWarnings(write.table(participant, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 cat("\nGenerated participant_data.csv\n")
 cat(nrow(participant), "rows and", ncol(participant), "columns\n")

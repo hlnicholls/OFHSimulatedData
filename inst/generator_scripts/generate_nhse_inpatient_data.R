@@ -110,7 +110,7 @@ nhse_eng_inpat <- add_nhse_inpat_new_columns(nhse_eng_inpat)
 local({
   p <- "../data/nhse_inpat_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  write.table(nhse_eng_inpat, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8")
+  suppressWarnings(write.table(nhse_eng_inpat, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 
 # Summary Verification

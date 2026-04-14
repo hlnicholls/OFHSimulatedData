@@ -7,6 +7,7 @@ source("generate_pids.R")
 set.seed(42)
 
 required_cols <- c(
+  "pid",
   "bsaprescriptionid",
   "chargestatus",
   "costcentreodscode_ofh",
@@ -18,7 +19,6 @@ required_cols <- c(
   "itemnic",
   "maternityexemptionflag",
   "outofhoursindicator",
-  "pid",
   "paidbnfcode",
   "paidbnfname",
   "paiddisallowedindicator",
@@ -310,7 +310,7 @@ nhse_eng_primcare_meds <- create_primcare_meds(n_people)
 local({
   p <- "../data/nhse_primcare_meds_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  write.table(nhse_eng_primcare_meds, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8")
+  suppressWarnings(write.table(nhse_eng_primcare_meds, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 unique_pids_meds <- length(unique(nhse_eng_primcare_meds$pid))
 cat("\nGenerated nhse_primcare_meds_data.csv\n")

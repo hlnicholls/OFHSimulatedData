@@ -100,7 +100,7 @@ nhse_eng_ed <- add_nhse_ed_new_columns(nhse_eng_ed)
 local({
   p <- "../data/nhse_ed_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  write.table(nhse_eng_ed, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8")
+  suppressWarnings(write.table(nhse_eng_ed, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 
 # Summary for verification

@@ -8,9 +8,12 @@
 #' @param opcs4_file Optional path to a TXT/CSV file with one OPCS-4 code per line.
 #' @param bnf_codes Optional vector of BNF codes for primary care meds.
 #' @param bnf_codes_file Optional path to a TXT/CSV file with one BNF code per line.
-#' @param write_csv Whether to write CSV files.
-#' @param output_dir Output directory when write_csv is TRUE.
-#' @return Named list of generated data frames.
+#' @param save_csv Whether to write CSV files.
+#' @param return_objects Whether to return generated data frames as an R object.
+#' @param output_dir Output directory when save_csv is TRUE.
+#' @param write_csv Deprecated alias for save_csv.
+#' @return Named list of generated data frames when return_objects is TRUE;
+#'   otherwise invisible NULL.
 #' @export
 .ofh_read_codes_file <- function(path, named = FALSE) {
   if (is.null(path)) return(NULL)
@@ -74,9 +77,26 @@ generate_ofh_cohort <- function(
   opcs4_file = NULL,
   bnf_codes = NULL,
   bnf_codes_file = NULL,
-  write_csv = TRUE,
-  output_dir = NULL
+  save_csv = TRUE,
+  return_objects = TRUE,
+  output_dir = NULL,
+  write_csv = NULL
 ) {
+  if (!is.null(write_csv)) {
+    warning("`write_csv` is deprecated; use `save_csv`.", call. = FALSE)
+    save_csv <- isTRUE(write_csv)
+  }
+
+  if (!is.logical(save_csv) || length(save_csv) != 1 || is.na(save_csv)) {
+    stop("save_csv must be a single TRUE/FALSE value")
+  }
+  if (!is.logical(return_objects) || length(return_objects) != 1 || is.na(return_objects)) {
+    stop("return_objects must be a single TRUE/FALSE value")
+  }
+  if (!isTRUE(save_csv) && !isTRUE(return_objects)) {
+    stop("At least one of save_csv or return_objects must be TRUE")
+  }
+
   if (!is.null(icd10) && !is.null(icd10_file)) stop("Provide either icd10 or icd10_file, not both")
   if (!is.null(opcs4) && !is.null(opcs4_file)) stop("Provide either opcs4 or opcs4_file, not both")
   if (!is.null(bnf_codes) && !is.null(bnf_codes_file)) stop("Provide either bnf_codes or bnf_codes_file, not both")
@@ -87,16 +107,16 @@ generate_ofh_cohort <- function(
 
   sim <- OFHCohortSimulator$new(
     project_root = ".",
-    output_dir = if (isTRUE(write_csv)) output_dir else tempdir(),
+    output_dir = if (isTRUE(save_csv)) output_dir else tempdir(),
     seed = seed
   )
 
   sim$set_code_pools(icd10 = icd10, opcs4 = opcs4, bnf_codes = bnf_codes)
-  out <- sim$run_all(n = n, seed = seed)
+  out <- sim$run_all(n = n, seed = seed, save_csv = save_csv, return_objects = return_objects)
 
-  if (!isTRUE(write_csv)) {
-    invisible(out)
-  } else {
+  if (isTRUE(return_objects)) {
     out
+  } else {
+    invisible(NULL)
   }
 }

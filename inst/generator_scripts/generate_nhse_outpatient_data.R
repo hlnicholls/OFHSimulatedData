@@ -108,7 +108,7 @@ nhse_eng_outpat <- add_nhse_outpat_new_columns(nhse_eng_outpat)
 local({
   p <- "../data/nhse_outpat_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  write.table(nhse_eng_outpat, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8")
+  suppressWarnings(write.table(nhse_eng_outpat, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 
 # Summary Verification

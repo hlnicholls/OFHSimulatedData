@@ -93,10 +93,10 @@ write_csv_utf8bom <- function(df, path) {
   con <- file(path, open = "wb")
   writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con)
   close(con)
-  write.table(df, file = path, append = TRUE, sep = ",",
+  suppressWarnings(write.table(df, file = path, append = TRUE, sep = ",",
               row.names = FALSE, col.names = TRUE,
               qmethod = "double", na = "NA",
-              fileEncoding = "UTF-8")
+              fileEncoding = "UTF-8"))
 }
 
 fill_if_all_na <- function(df, col, values) {
@@ -229,6 +229,74 @@ get_pdf_column_values <- function(col_name) {
   )
 }
 
+# Answer values that must always appear alone in a multi-select cell (never
+# combined with other choices via "|").
+.EXCLUSIVE_ANSWERS <- c(
+  "None of the above",
+  "Prefer not to answer",
+  "Do not know",
+  "No",
+  "Only select a response if you currently use gas"
+)
+
+# Generate n multi-select responses from a pool of allowed values.
+# - Exclusive values (e.g. "None of the above") are never combined with others.
+# - Probabilities: ~60 % single answer, ~30 % two answers, ~10 % three answers.
+# - edu_qual columns use a qualification-hierarchy heuristic so that
+#   degree-holders are also assigned A-levels, and A-level holders are also
+#   assigned O-levels/GCSEs, at realistic rates.
+sample_multi_select_responses <- function(vals, n, col_name) {
+  if (n <= 0 || length(vals) == 0) return(character(n))
+
+  exclusive   <- vals[vals %in% .EXCLUSIVE_ANSWERS]
+  combinable  <- vals[!vals %in% .EXCLUSIVE_ANSWERS]
+
+  # ---- EDU_QUAL: hierarchical credential logic ----
+  if (grepl("^edu_qual", col_name, ignore.case = TRUE) && length(combinable) >= 2) {
+    degree_v  <- grep("College or University degree", combinable, value = TRUE, fixed = TRUE)
+    a_level_v <- grep("A levels/AS levels",           combinable, value = TRUE)
+    o_level_v <- grep("O levels/GCSEs or equivalent", combinable, value = TRUE, fixed = TRUE)
+
+    return(vapply(seq_len(n), function(i) {
+      base <- sample(vals, 1)
+      if (base %in% exclusive) return(base)
+      chosen <- base
+      if (length(degree_v) > 0 && base %in% degree_v) {
+        # Degree holder: ~85 % chance they also report A-levels
+        if (length(a_level_v) > 0 && runif(1) < 0.85) {
+          chosen <- c(chosen, sample(a_level_v, 1))
+          # A-levels added: ~70 % chance O-levels/GCSEs too
+          if (length(o_level_v) > 0 && runif(1) < 0.70)
+            chosen <- c(chosen, sample(o_level_v, 1))
+        }
+      } else if (length(a_level_v) > 0 && base %in% a_level_v) {
+        # A-levels only: ~75 % chance they also report O-levels/GCSEs
+        if (length(o_level_v) > 0 && runif(1) < 0.75)
+          chosen <- c(chosen, sample(o_level_v, 1))
+      }
+      paste(chosen, collapse = "|")
+    }, character(1)))
+  }
+
+  # ---- General multi-select ----
+  if (length(combinable) == 0) return(sample(vals, n, replace = TRUE))
+
+  vapply(seq_len(n), function(i) {
+    base <- sample(vals, 1)
+    # Exclusive answers are always returned on their own.
+    if (base %in% exclusive || length(combinable) < 2) return(base)
+    # Decide how many answers to combine.
+    p <- runif(1)
+    k <- if (p < 0.60) 1L else if (p < 0.90) 2L else 3L
+    if (k == 1L) return(base)
+    pool    <- setdiff(combinable, base)
+    extra_k <- min(k - 1L, length(pool))
+    if (extra_k == 0L) return(base)
+    extra <- sample(pool, extra_k, replace = FALSE)
+    paste(c(base, extra), collapse = "|")
+  }, character(1))
+}
+
 apply_pdf_value_catalog <- function(section_df, questionnaire_data, cols, force_replace_numeric = TRUE) {
   n <- nrow(section_df)
   if (n == 0) return(section_df)
@@ -317,6 +385,14 @@ apply_pdf_value_catalog <- function(section_df, questionnaire_data, cols, force_
 
     out <- ifelse(is.na(cur), NA_character_, as.character(cur))
 
+    # For multi-select questions use the multi-select sampler; for single-choice
+    # questions use plain sample().
+    is_multi <- identical(info$question_type, "multi_select")
+    draw <- function(v, m) {
+      if (is_multi) sample_multi_select_responses(v, m, col)
+      else          sample(v, m, replace = TRUE)
+    }
+
     # Version-only questions must be NA outside the applicable version.
     if (!has_v1 && has_v2 && length(idx_v1) > 0) {
       out[idx_v1] <- NA_character_
@@ -329,9 +405,9 @@ apply_pdf_value_catalog <- function(section_df, questionnaire_data, cols, force_
       if (!has_v1) {
         # v2-only column
       } else if (length(vals_v1) > 0) {
-        out[idx_v1] <- sample(vals_v1, length(idx_v1), replace = TRUE)
+        out[idx_v1] <- draw(vals_v1, length(idx_v1))
       } else if (length(vals_all) > 0) {
-        out[idx_v1] <- sample(vals_all, length(idx_v1), replace = TRUE)
+        out[idx_v1] <- draw(vals_all, length(idx_v1))
       }
     }
 
@@ -339,9 +415,9 @@ apply_pdf_value_catalog <- function(section_df, questionnaire_data, cols, force_
       if (!has_v2) {
         # v1-only column
       } else if (length(vals_v2) > 0) {
-        out[idx_v2] <- sample(vals_v2, length(idx_v2), replace = TRUE)
+        out[idx_v2] <- draw(vals_v2, length(idx_v2))
       } else if (length(vals_all) > 0) {
-        out[idx_v2] <- sample(vals_all, length(idx_v2), replace = TRUE)
+        out[idx_v2] <- draw(vals_all, length(idx_v2))
       }
     }
 

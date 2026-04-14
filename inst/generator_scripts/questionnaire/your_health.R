@@ -43,8 +43,6 @@ section_df <- questionnaire_data[, cols, drop = FALSE]
 n <- nrow(section_df)
 
 # Determine v1/v2 index split.
-# Explicitly reset columns that have no generation logic so stale values from
-# a prior CSV run are never carried forward.
 na_cols <- c(
   "children_bio_first_age_1_1", "children_bio_last_age_1_1",
   "children_bio_num_1_1", "children_bio_num_2_1",
@@ -86,7 +84,7 @@ if ("questionnaire_version" %in% names(questionnaire_data)) {
   idx_v2 <- setdiff(seq_len(n), idx_v1)
 }
 
-# Female index (~52% of sample) for sex-conditional gynaecology questions.
+# Female index (~52% of sample)
 female_idx <- sample(seq_len(n), size = round(0.52 * n))
 female_v1_idx <- intersect(female_idx, idx_v1)
 female_v2_idx <- intersect(female_idx, idx_v2)

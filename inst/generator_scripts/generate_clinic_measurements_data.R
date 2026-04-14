@@ -98,7 +98,7 @@ clinic_measurements <- data.frame(
 local({
   p <- "../data/clinic_measurements_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  write.table(clinic_measurements, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8")
+  suppressWarnings(write.table(clinic_measurements, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 
 unique_pids_clinic <- length(unique(clinic_measurements$pid))
