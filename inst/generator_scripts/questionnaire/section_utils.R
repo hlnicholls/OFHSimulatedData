@@ -26,10 +26,18 @@ get_questionnaire_data <- function() {
   generator_root <- resolve_generator_root()
   data_dir <- normalizePath(file.path(generator_root, "..", "data"), mustWork = FALSE)
   data_path <- file.path(data_dir, "questionnaire_data.csv")
+  allow_seed_from_existing <- isTRUE(getOption("OFH.allow_existing_questionnaire_data", FALSE)) ||
+    tolower(trimws(Sys.getenv("OFH_ALLOW_EXISTING_QUESTIONNAIRE_DATA", "false"))) %in% c("1", "true", "yes", "y")
 
-  if (file.exists(data_path)) {
+  if (file.exists(data_path) && allow_seed_from_existing) {
     qd <- read.csv(data_path, stringsAsFactors = FALSE)
   } else {
+    if (file.exists(data_path) && !allow_seed_from_existing) {
+      message(
+        "Ignoring existing data/questionnaire_data.csv; using synthetic bootstrap source data. ",
+        "Set OFH_ALLOW_EXISTING_QUESTIONNAIRE_DATA=true or option(OFH.allow_existing_questionnaire_data=TRUE) to opt in."
+      )
+    }
     bootstrap_path <- file.path(generator_root, "questionnaire", "bootstrap_source_data.R")
     if (!file.exists(bootstrap_path)) {
       stop("questionnaire_data.csv not found and bootstrap_source_data.R does not exist at questionnaire/bootstrap_source_data.R")
