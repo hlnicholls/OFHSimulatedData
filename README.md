@@ -6,6 +6,8 @@ This project is designed to generate synthetic data from rule-based and stochast
 
 The output data is a general approximation of the schema intended for code development, not for statistical inference.
 
+_This is an unofficial tool and is not affiliated with Our Future Health._
+
 ## What It Generates
 
 The generator produces CSV files for a synthetic cohort, including:
