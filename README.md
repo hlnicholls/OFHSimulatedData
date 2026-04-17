@@ -1,6 +1,6 @@
-# ofhsim
+# OFH Simulated Data Generator
 
-This repository creates synthetic datasets that aim to mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) available in the Our Future Health cohort. It is designed so researchers can develop and test workflows before running them on the much larger real data.
+This repository introduces the `ofhsim` R library that creates synthetic datasets, aiming to mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) available in the Our Future Health cohort. It is designed so researchers can develop and test workflows before running them on the much larger real data.
 
 This project is designed to generate synthetic data from rule-based and stochastic generators, schema dictionaries, and user-supplied code lists, rather than from participant-level OFH source records.
 
