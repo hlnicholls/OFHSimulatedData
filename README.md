@@ -1,4 +1,4 @@
-# OFHSimulatedData
+# ofhsim
 
 This repository creates synthetic datasets that aim to mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) available in the Our Future Health cohort. It is designed so researchers can develop and test workflows before running them on the much larger real data.
 
@@ -50,7 +50,7 @@ cd ./OFHSimulatedData
 
 ```r
 install.packages(".", repos = NULL, type = "source")
-library(OFHSimulatedData)
+library(ofhsim)
 
 sim <- OFHCohortSimulator$new(project_root = ".", seed = 123)
 
@@ -93,7 +93,7 @@ BNF codes should use this structure:
 ## Example Data Generation with set codes
 
 ```r
-library(OFHSimulatedData)
+library(ofhsim)
 
 out <- generate_ofh_cohort(
 	n = 1000,

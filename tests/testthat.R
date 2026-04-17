@@ -1,4 +1,4 @@
 library(testthat)
-library(OFHSimulatedData)
+library(ofhsim)
 
-test_check("OFHSimulatedData")
+test_check("ofhsim")

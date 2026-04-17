@@ -4,9 +4,9 @@ source("generate_pids.R")
 
 set.seed(42)
 
-config <- get0("GEN_CONFIG", ifnotfound = NULL)
+config <- getOption("OFH_GEN_CONFIG", NULL)
 total_pid_count <- if (!is.null(config)) config$total_pid_count else 5000
-all_study_pids <- get0("ALL_STUDY_PIDS", ifnotfound = generate_pids(total_pid_count))
+all_study_pids <- getOption("OFH_ALL_STUDY_PIDS", generate_pids(total_pid_count))
 
 v1_percentage <- 0.015
 v2_percentage <- 1 - v1_percentage

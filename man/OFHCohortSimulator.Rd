@@ -11,5 +11,5 @@ Create an instance with \code{OFHCohortSimulator$new(...)} and run generation vi
 }
 \examples{
 sim <- OFHCohortSimulator$new(project_root = ".", seed = 123)
-out <- sim$run_all(n = 100, save_csv = TRUE, return_objects = TRUE)
+out <- sim$run_all(n = 100, save_csv = FALSE, return_objects = TRUE)
 }

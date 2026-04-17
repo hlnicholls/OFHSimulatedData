@@ -23,8 +23,8 @@ OFHCohortSimulator <- methods::setRefClass(
       local_scripts <- file.path(local_root, "inst", "generator_scripts")
       local_dicts <- file.path(local_root, "data_dictionaries")
 
-      installed_scripts <- system.file("generator_scripts", package = "OFHSimulatedData")
-      installed_dicts <- system.file("data_dictionaries", package = "OFHSimulatedData")
+      installed_scripts <- system.file("generator_scripts", package = "ofhsim")
+      installed_dicts <- system.file("data_dictionaries", package = "ofhsim")
 
       # Prefer repository-local assets during development so script edits in the
       # workspace are used immediately without reinstalling the package.
@@ -52,7 +52,6 @@ OFHCohortSimulator <- methods::setRefClass(
         out_dir <- normalizePath(path.expand(out_dir), mustWork = FALSE)
       }
       output_dir <<- out_dir
-      if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
       seed <<- as.integer(seed)
       config <<- list()
@@ -276,8 +275,11 @@ OFHCohortSimulator <- methods::setRefClass(
       setwd(work_scripts)
 
       source("generate_pids.R")
-      assign("GEN_CONFIG", config, envir = .GlobalEnv)
-      assign("ALL_STUDY_PIDS", generate_pids(config$total_pid_count), envir = .GlobalEnv)
+      old_ofh_opts <- options(
+        OFH_GEN_CONFIG = config,
+        OFH_ALL_STUDY_PIDS = generate_pids(config$total_pid_count)
+      )
+      on.exit(options(old_ofh_opts), add = TRUE)
       set.seed(.self$seed)
 
       scripts <- c(

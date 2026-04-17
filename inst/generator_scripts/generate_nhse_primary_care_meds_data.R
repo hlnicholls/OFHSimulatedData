@@ -42,9 +42,9 @@ required_cols <- c(
 )
 
 
-config <- get0("GEN_CONFIG", ifnotfound = NULL)
+config <- getOption("OFH_GEN_CONFIG", NULL)
 total_pid_count <- if (!is.null(config)) config$total_pid_count else 5000
-all_study_pids <- get0("ALL_STUDY_PIDS", ifnotfound = generate_pids(total_pid_count))
+all_study_pids <- getOption("OFH_ALL_STUDY_PIDS", generate_pids(total_pid_count))
 dataset_cfg <- if (!is.null(config)) config$datasets$nhse_primcare_meds_data else NULL
 
 n_people <- if (!is.null(dataset_cfg$unique_pids)) dataset_cfg$unique_pids else 5000

@@ -26,7 +26,7 @@ The package-style API supports:
 ## 1. Load the package
 
 ```{r load-api, eval = FALSE}
-library(OFHSimulatedData)
+library(ofhsim)
 ```
 
 ## 2. Generate a basic cohort

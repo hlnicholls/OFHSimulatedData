@@ -1,4 +1,4 @@
-Package: OFHSimulatedData
+Package: ofhsim
 Type: Package
 Title: Synthetic Linked Health Cohort Data Generator
 Version: 0.1.0

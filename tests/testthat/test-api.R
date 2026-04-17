@@ -19,7 +19,9 @@ test_that("generate_ofh_cohort returns expected outputs", {
 })
 
 test_that("default output folder is created", {
-  td <- tempdir()
+  td <- tempfile("ofh_output_test_")
+  dir.create(td, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(td, recursive = TRUE, force = TRUE), add = TRUE)
   old <- setwd(td)
   on.exit(setwd(old), add = TRUE)
 
@@ -66,6 +68,7 @@ test_that("txt code files support tab-separated code and description format", {
   td <- tempdir()
   icd10_file <- file.path(td, "icd10_desc_codes.txt")
   opcs4_file <- file.path(td, "opcs4_desc_codes.txt")
+  bnf_file <- file.path(td, "bnf_codes_for_txt_test.txt")
 
   writeLines(
     c(
@@ -83,13 +86,14 @@ test_that("txt code files support tab-separated code and description format", {
     ),
     opcs4_file
   )
+  writeLines(c("0212000B0", "0601023A0"), bnf_file)
 
   out <- generate_ofh_cohort(
     n = 90,
     seed = 21,
     icd10_file = icd10_file,
     opcs4_file = opcs4_file,
-    bnf_codes_file = "bnf_medications.csv",
+    bnf_codes_file = bnf_file,
     save_csv = FALSE,
     return_objects = TRUE
   )
@@ -104,9 +108,11 @@ test_that("code-only TXT ICD10/OPCS4 is rejected", {
   td <- tempdir()
   icd10_file <- file.path(td, "icd10_codes_only.txt")
   opcs4_file <- file.path(td, "opcs4_codes_only.txt")
+  bnf_file <- file.path(td, "bnf_codes_for_error_test.txt")
 
   writeLines(c("I500", "N189"), icd10_file)
   writeLines(c("K401", "K451"), opcs4_file)
+  writeLines(c("0212000B0", "0601023A0"), bnf_file)
 
   expect_error(
     generate_ofh_cohort(
@@ -114,7 +120,7 @@ test_that("code-only TXT ICD10/OPCS4 is rejected", {
       seed = 31,
       icd10_file = icd10_file,
       opcs4_file = opcs4_file,
-      bnf_codes_file = "bnf_medications.csv",
+      bnf_codes_file = bnf_file,
       save_csv = FALSE,
       return_objects = TRUE
     ),

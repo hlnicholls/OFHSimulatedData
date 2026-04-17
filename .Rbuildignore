@@ -12,3 +12,5 @@
 ^README\.md$
 ^\.gitignore$
 ^vignettes$
+^LICENSE\.md$
+^example$
