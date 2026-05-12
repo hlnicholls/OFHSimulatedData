@@ -100,12 +100,19 @@ OFHCohortSimulator <- methods::setRefClass(
 
       cc <- list()
       if (!is.null(icd10) || !is.null(opcs4)) {
-        icd10_map <- if (!is.null(icd10)) icd10 else c()
-        opcs4_map <- if (!is.null(opcs4)) opcs4 else c()
-
-        cc$nhse_outpat_data <- list(icd10_descriptions = icd10_map, opcs4_descriptions = opcs4_map)
-        cc$nhse_inpat_data <- list(icd10_descriptions = icd10_map, opcs4_descriptions = opcs4_map)
-        cc$nhse_engwal_deaths_data <- list(icd10_descriptions = icd10_map)
+        outpat_cfg <- list()
+        inpat_cfg <- list()
+        if (!is.null(icd10)) {
+          outpat_cfg$icd10_descriptions <- icd10
+          inpat_cfg$icd10_descriptions <- icd10
+          cc$nhse_engwal_deaths_data <- list(icd10_descriptions = icd10)
+        }
+        if (!is.null(opcs4)) {
+          outpat_cfg$opcs4_descriptions <- opcs4
+          inpat_cfg$opcs4_descriptions <- opcs4
+        }
+        cc$nhse_outpat_data <- outpat_cfg
+        cc$nhse_inpat_data <- inpat_cfg
       }
 
       if (!is.null(bnf_codes) || !is.null(bnf_meds)) {
