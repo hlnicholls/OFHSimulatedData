@@ -293,3 +293,63 @@ test_that("zero proportions auto-adjust multi-record multipliers", {
   expect_equal(nrow(out$nhse_inpat_data), 0)
   expect_equal(nrow(out$nhse_ed_data), 0)
 })
+
+test_that("named icd10 vector preserves code keys as names not descriptions", {
+  out <- generate_ofh_cohort(
+    n = 60,
+    seed = 401,
+    icd10 = c(C61 = "Malignant neoplasm of prostate", Z854 = "Personal history of malignant neoplasm"),
+    save_csv = FALSE,
+    return_objects = TRUE
+  )
+
+  non_missing <- out$nhse_outpat_data$diag_4_01[!is.na(out$nhse_outpat_data$diag_4_01)]
+  expect_true(length(non_missing) > 0)
+  # entries should be "C61 = ..." not "Malignant neoplasm... = Malignant neoplasm..."
+  expect_true(any(grepl("^C61 = |^Z854 = ", non_missing)))
+  expect_false(any(grepl("^Malignant neoplasm of prostate = ", non_missing)))
+})
+
+test_that("icd10_weights work with named vector icd10 input", {
+  expect_no_error(
+    generate_ofh_cohort(
+      n = 60,
+      seed = 402,
+      icd10 = c(C61 = "Malignant neoplasm of prostate", Z854 = "Personal history of malignant neoplasm"),
+      code_config = list(
+        nhse_outpat_data = list(icd10_weights = c(C61 = 5, Z854 = 1)),
+        nhse_inpat_data  = list(icd10_weights = c(C61 = 5, Z854 = 1))
+      ),
+      save_csv = FALSE,
+      return_objects = TRUE
+    )
+  )
+})
+
+test_that("icd10 only - default OPCS4 pool is not wiped", {
+  out <- generate_ofh_cohort(
+    n = 60,
+    seed = 403,
+    icd10 = c(C61 = "Malignant neoplasm of prostate"),
+    save_csv = FALSE,
+    return_objects = TRUE
+  )
+
+  # opertn_01 should have some non-NA entries from default OPCS4 codes
+  opertn <- out$nhse_outpat_data$opertn_01[!is.na(out$nhse_outpat_data$opertn_01)]
+  expect_true(length(opertn) > 0)
+})
+
+test_that("opcs4 only - default ICD-10 pool is not wiped", {
+  out <- generate_ofh_cohort(
+    n = 60,
+    seed = 404,
+    opcs4 = c(K401 = "Percutaneous transluminal balloon angioplasty of coronary artery"),
+    save_csv = FALSE,
+    return_objects = TRUE
+  )
+
+  # diag_4_01 should have non-NA entries from default ICD-10 codes
+  diags <- out$nhse_outpat_data$diag_4_01[!is.na(out$nhse_outpat_data$diag_4_01)]
+  expect_true(length(diags) > 0)
+})
