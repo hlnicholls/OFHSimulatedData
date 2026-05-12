@@ -107,7 +107,9 @@
 
 .ofh_as_named_codes <- function(x) {
   if (is.null(x) || length(x) == 0) return(NULL)
+  nms <- names(x)
   x <- as.character(x)
+  names(x) <- nms
   if (is.null(names(x)) || any(names(x) == "")) {
     names(x) <- x
     return(x)
