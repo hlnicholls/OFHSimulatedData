@@ -50,6 +50,9 @@ probabilities and pools. Structure should follow \code{ofh_default_code_config()
   \item{write_csv}{Deprecated alias for \code{save_csv}.}
 }
 \value{Named list of generated data frames when \code{return_objects = TRUE}; otherwise invisible \code{NULL}.}
+\section{Acknowledgement}{
+We extend our thanks to GitHub user @\strong{icallumwebb} for contributing a bug fix that improved custom code handling.
+}
 \examples{
 out <- generate_ofh_cohort(n = 200, seed = 123, save_csv = FALSE, return_objects = TRUE)
 names(out)
