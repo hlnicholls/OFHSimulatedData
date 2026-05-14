@@ -1,14 +1,14 @@
 Package: ofhsyn
 Type: Package
-Title: Synthetic Linked Health Cohort Data Generator
+Title: Synthetic Our Future Health Data Generator
 Version: 0.1.0
 Authors@R: person(given = "Hannah", family = "Nicholls", role = c("aut", "cre"), email = "hannahnicholls@qmul.ac.uk")
 Author: Hannah Nicholls [aut, cre]
 Maintainer: Hannah Nicholls <hannahnicholls@qmul.ac.uk>
-Description: Generates synthetic linked health datasets for method development,
+Description: Generates synthetic Our Future Health cohort datasets for method development,
     including participant, questionnaire, clinic measurements, outpatient,
     inpatient, emergency, mortality, primary care medication, and geography
-    outputs. Supports reproducible generation with configurable cohort size and
+    outputs for the Our Future Health cohort. Supports reproducible generation with configurable cohort size and
     user-defined ICD-10, OPCS-4, and BNF code pools.
 License: MIT + file LICENSE
 Encoding: UTF-8
