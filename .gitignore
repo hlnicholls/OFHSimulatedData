@@ -6,3 +6,5 @@
 /output
 /*.tar.gz
 /*.Rcheck
+
+/r-devel-outputs

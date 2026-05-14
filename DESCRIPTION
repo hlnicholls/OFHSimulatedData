@@ -8,7 +8,7 @@ Maintainer: Hannah Nicholls <hannahnicholls@qmul.ac.uk>
 Description: Generates synthetic Our Future Health cohort datasets for method development,
     including participant, questionnaire, clinic measurements, outpatient,
     inpatient, emergency, mortality, primary care medication, and geography
-    outputs for the Our Future Health cohort. Supports reproducible generation with configurable cohort size and
+    outputs. Supports reproducible generation with configurable cohort size and
     user-defined ICD-10, OPCS-4, and BNF code pools.
 License: MIT + file LICENSE
 Encoding: UTF-8
