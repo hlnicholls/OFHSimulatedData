@@ -1,10 +1,10 @@
-# OFH Simulated Data Generator
+# OFH Synthetic Data Generator
 
-This repository introduces the `ofhsim` R library that creates synthetic datasets, aiming to mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) available in the Our Future Health cohort. It is designed so researchers can develop and test workflows before running them on the much larger real data.
+This repository introduces the `ofhsyn` R library that creates synthetic datasets, aiming to mimic the structure of multiple linked health data sources (participant, questionnaire, clinic measures, HES-like events, primary care medicines, deaths, and geography) available in the Our Future Health cohort. It is designed so researchers can develop and test workflows before running them on the much larger real data.
 
 This project is designed to generate synthetic data from rule-based and stochastic generators, schema dictionaries, and user-supplied code lists, rather than from participant-level OFH source records.
 
-The output data is a general approximation of the schema intended for code development, not for statistical inference.
+The output data is a general approximation of the schema intended for code development, not for statistical inference. It applies rule-based data generation based on public schemas and does not take any kind of real partcipant data as input.
 
 _This is an unofficial tool and is not affiliated with Our Future Health._
 
@@ -43,14 +43,14 @@ install.packages(c("rmarkdown", "knitr"))
 ## Quick Start
 
 ```
-git clone https://github.com/hlnicholls/OFHSimulatedData
+git clone https://github.com/hlnicholls/ofhsyn
 
-cd ./OFHSimulatedData
+cd ./ofhsyn
 ```
 
 ```r
 install.packages(".", repos = NULL, type = "source")
-library(ofhsim)
+library(ofhsyn)
 
 sim <- OFHCohortSimulator$new(project_root = ".", seed = 123)
 
@@ -93,7 +93,7 @@ BNF codes should use this structure:
 ## Example Data Generation with set codes
 
 ```r
-library(ofhsim)
+library(ofhsyn)
 
 out <- generate_ofh_cohort(
 	n = 1000,

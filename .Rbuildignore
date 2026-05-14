@@ -11,6 +11,8 @@
 ^TODO$
 ^README\.md$
 ^\.gitignore$
-^vignettes$
 ^LICENSE\.md$
 ^example$
+^ofhsyn-manual-preview\.pdf$
+^.*\.Rcheck$
+^\.DS_Store$

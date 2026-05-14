@@ -23,8 +23,8 @@ OFHCohortSimulator <- methods::setRefClass(
       local_scripts <- file.path(local_root, "inst", "generator_scripts")
       local_dicts <- file.path(local_root, "data_dictionaries")
 
-      installed_scripts <- system.file("generator_scripts", package = "ofhsim")
-      installed_dicts <- system.file("data_dictionaries", package = "ofhsim")
+      installed_scripts <- system.file("generator_scripts", package = "ofhsyn")
+      installed_dicts <- system.file("data_dictionaries", package = "ofhsyn")
 
       # Prefer repository-local assets during development so script edits in the
       # workspace are used immediately without reinstalling the package.

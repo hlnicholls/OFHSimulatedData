@@ -1,8 +1,10 @@
-Package: ofhsim
+Package: ofhsyn
 Type: Package
 Title: Synthetic Linked Health Cohort Data Generator
 Version: 0.1.0
 Authors@R: person(given = "Hannah", family = "Nicholls", role = c("aut", "cre"), email = "hannahnicholls@qmul.ac.uk")
+Author: Hannah Nicholls [aut, cre]
+Maintainer: Hannah Nicholls <hannahnicholls@qmul.ac.uk>
 Description: Generates synthetic linked health datasets for method development,
     including participant, questionnaire, clinic measurements, outpatient,
     inpatient, emergency, mortality, primary care medication, and geography
@@ -21,4 +23,5 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown
+VignetteBuilder: knitr
 Config/testthat/edition: 3

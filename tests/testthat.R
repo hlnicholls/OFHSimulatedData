@@ -1,4 +1,4 @@
 library(testthat)
-library(ofhsim)
+library(ofhsyn)
 
-test_check("ofhsim")
+test_check("ofhsyn")
