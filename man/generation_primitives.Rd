@@ -1,8 +1,8 @@
 \name{generation_primitives}
 \alias{generate_ofh_population}
 \alias{add_inpatient_events}
-\alias{simulate_drug_exposure}
-\title{Standalone Simulation Primitives}
+\alias{synthesize_drug_exposure}
+\title{Standalone Synthetic Generation Primitives}
 \description{Utility functions for generating participant populations and event-level synthetic records.}
 \usage{
 generate_ofh_population(n = 1000, seed = 123)
@@ -15,7 +15,7 @@ add_inpatient_events(
   seed = 123
 )
 
-simulate_drug_exposure(
+synthesize_drug_exposure(
   data,
   drug_list = c("0212000B0", "0601023A0"),
   seed = 123,

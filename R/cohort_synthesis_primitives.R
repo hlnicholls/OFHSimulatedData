@@ -78,7 +78,7 @@ add_inpatient_events <- function(
   )
 }
 
-#' Simulate primary-care drug exposure records
+#' Synthesize primary-care drug exposure records
 #'
 #' @param data Data frame containing a pid column.
 #' @param drug_list Character vector of BNF-like codes.
@@ -86,7 +86,7 @@ add_inpatient_events <- function(
 #' @param mean_items_per_person Mean items per participant.
 #' @return Data frame of synthetic medication records.
 #' @export
-simulate_drug_exposure <- function(
+synthesize_drug_exposure <- function(
   data,
   drug_list = c("0212000B0", "0601023A0"),
   seed = 123,
@@ -118,3 +118,4 @@ simulate_drug_exposure <- function(
     stringsAsFactors = FALSE
   )
 }
+

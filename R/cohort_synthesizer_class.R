@@ -1,14 +1,14 @@
-#' Simulator class for OFH synthetic cohort generation
+#' Synthesizer class for OFH synthetic cohort generation
 #'
-#' @field project_root Kept for API compatibility; package assets are loaded from installed files.
+#' @field project_root Package assets are loaded from installed files.
 #' @field generator_scripts_dir Path to template generator scripts.
 #' @field data_dictionaries_dir Path to template data dictionaries.
 #' @field output_dir Output directory for final CSV files.
 #' @field seed Random seed.
 #' @field config Generation configuration.
 #' @export
-OFHCohortSimulator <- methods::setRefClass(
-  "OFHCohortSimulator",
+OFHCohortSynthesizer <- methods::setRefClass(
+  "OFHCohortSynthesizer",
   fields = list(
     project_root = "character",
     generator_scripts_dir = "character",
@@ -71,8 +71,8 @@ OFHCohortSimulator <- methods::setRefClass(
       )
     },
 
-    simulate_drug_exposure = function(data, drug_list = c("0212000B0", "0601023A0"), seed = 123, mean_items_per_person = 2) {
-      simulate_drug_exposure(
+    synthesize_drug_exposure = function(data, drug_list = c("0212000B0", "0601023A0"), seed = 123, mean_items_per_person = 2) {
+      synthesize_drug_exposure(
         data = data,
         drug_list = drug_list,
         seed = seed,

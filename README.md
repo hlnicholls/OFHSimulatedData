@@ -52,9 +52,9 @@ cd ./ofhsyn
 install.packages(".", repos = NULL, type = "source")
 library(ofhsyn)
 
-sim <- OFHCohortSimulator$new(project_root = ".", seed = 123)
+syn <- OFHCohortSynthesizer$new(project_root = ".", seed = 123)
 
-out <- sim$run_all(n = 1000)
+out <- syn$run_all(n = 1000)
 ```
 
 ## Custom Code Lists (ICD-10, OPCS4, BNF)

@@ -40,7 +40,7 @@ if (is.null(code_cfg)) {
 outpat_pids_pool <- sample(all_study_pids, n_outpat_people)
 
 # 3. Create the 8000 records using ONLY those 2000 PIDs
-# This simulates follow-up appointments (multiple rows per PID)
+# This models follow-up appointments (multiple rows per PID)
 pids_for_data <- c(outpat_pids_pool, sample(outpat_pids_pool, total_records - n_outpat_people, replace = TRUE))
 
 generate_icd10_entry <- function() {

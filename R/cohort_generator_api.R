@@ -23,7 +23,6 @@
 #' @param save_csv Whether to write CSV files.
 #' @param return_objects Whether to return generated data frames as an R object.
 #' @param output_dir Output directory when save_csv is TRUE.
-#' @param write_csv Deprecated alias for save_csv.
 #' @return Named list of generated data frames when return_objects is TRUE;
 #'   otherwise invisible NULL.
 #' @export
@@ -215,7 +214,7 @@
       return(list(codes = unique(bnf_meds$BNFCode), bnf_meds = bnf_meds))
     }
 
-    # Backward-compatible code-only CSV support.
+    # Code-only CSV support.
     codes <- .ofh_read_codes_file(bnf_codes_file, named = FALSE)
     return(list(codes = codes, bnf_meds = NULL))
   }
@@ -246,14 +245,8 @@ generate_ofh_cohort <- function(
   code_config = NULL,
   save_csv = TRUE,
   return_objects = TRUE,
-  output_dir = NULL,
-  write_csv = NULL
+  output_dir = NULL
 ) {
-  if (!is.null(write_csv)) {
-    warning("`write_csv` is deprecated; use `save_csv`.", call. = FALSE)
-    save_csv <- isTRUE(write_csv)
-  }
-
   if (!is.logical(save_csv) || length(save_csv) != 1 || is.na(save_csv)) {
     stop("save_csv must be a single TRUE/FALSE value")
   }
@@ -274,14 +267,14 @@ generate_ofh_cohort <- function(
   bnf_codes <- bnf_input$codes
   bnf_meds <- bnf_input$bnf_meds
 
-  sim <- OFHCohortSimulator$new(
+  syn <- OFHCohortSynthesizer$new(
     project_root = ".",
     output_dir = if (isTRUE(save_csv)) output_dir else tempdir(),
     seed = seed
   )
 
-  sim$set_code_pools(icd10 = icd10, opcs4 = opcs4, bnf_codes = bnf_codes, bnf_meds = bnf_meds)
-  out <- sim$run_all(
+  syn$set_code_pools(icd10 = icd10, opcs4 = opcs4, bnf_codes = bnf_codes, bnf_meds = bnf_meds)
+  out <- syn$run_all(
     n = n,
     seed = seed,
     save_csv = save_csv,

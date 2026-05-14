@@ -25,8 +25,8 @@ test_that("default output folder is created", {
   old <- setwd(td)
   on.exit(setwd(old), add = TRUE)
 
-  sim <- OFHCohortSimulator$new(project_root = ".", seed = 2)
-  sim$run_all(n = 60)
+  syn <- OFHCohortSynthesizer$new(project_root = ".", seed = 2)
+  syn$run_all(n = 60)
 
   expect_true(dir.exists(file.path(td, "output")))
   expect_true(file.exists(file.path(td, "output", "participant_data.csv")))
@@ -205,14 +205,6 @@ test_that("return_objects FALSE returns NULL but still writes CSVs", {
 
   expect_null(out)
   expect_true(file.exists(file.path(td, "participant_data.csv")))
-})
-
-test_that("write_csv alias remains supported", {
-  expect_warning(
-    out <- generate_ofh_cohort(n = 35, seed = 5, write_csv = FALSE),
-    "deprecated"
-  )
-  expect_equal(nrow(out$participant_data), 35)
 })
 
 test_that("at least one output target is required", {

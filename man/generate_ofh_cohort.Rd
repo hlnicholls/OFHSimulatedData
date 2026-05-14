@@ -17,8 +17,7 @@ generate_ofh_cohort(
   code_config = NULL,
   save_csv = TRUE,
   return_objects = TRUE,
-  output_dir = NULL,
-  write_csv = NULL
+  output_dir = NULL
 )
 }
 \arguments{
@@ -47,7 +46,6 @@ probabilities and pools. Structure should follow \code{ofh_default_code_config()
   \item{save_csv}{Whether to write CSV outputs to disk.}
   \item{return_objects}{Whether to return generated data frames as an R object.}
   \item{output_dir}{Output directory when \code{save_csv = TRUE}.}
-  \item{write_csv}{Deprecated alias for \code{save_csv}.}
 }
 \value{Named list of generated data frames when \code{return_objects = TRUE}; otherwise invisible \code{NULL}.}
 \section{Acknowledgement}{
