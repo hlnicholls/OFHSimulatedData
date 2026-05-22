@@ -33,8 +33,11 @@ demog_gender_1_1 <- rep(NA, n_people)
 demog_gender_2_1 <- rep(NA, n_people)
 
 # Assign values to _1_1 columns for 5%, and _2_1 for the rest
-demog_sex_1_1[sex_1_1_idx] <- sample(c("M", "F"), length(sex_1_1_idx), replace = TRUE)
-demog_sex_2_1[-sex_1_1_idx] <- sample(c("M", "F", NA), n_people - length(sex_1_1_idx), replace = TRUE, prob = c(0.45, 0.45, 0.1))
+sex_options <- c("Male", "Female", "Prefer not to answer", "Intersex")
+sex_probabilities <- c(0.499, 0.499, 0.001, 0.001)
+
+demog_sex_1_1[sex_1_1_idx] <- sample(sex_options, length(sex_1_1_idx), replace = TRUE, prob = sex_probabilities)
+demog_sex_2_1[-sex_1_1_idx] <- sample(sex_options, n_people - length(sex_1_1_idx), replace = TRUE, prob = sex_probabilities)
 
 demog_gender_1_1[gender_1_1_idx] <- sample(c("Man", "Woman", "Non-binary"), length(gender_1_1_idx), replace = TRUE, prob = c(0.48, 0.48, 0.04))
 demog_gender_2_1[-gender_1_1_idx] <- sample(c("Man", "Woman", "Non-binary", NA), n_people - length(gender_1_1_idx), replace = TRUE, prob = c(0.48, 0.48, 0.02, 0.02))

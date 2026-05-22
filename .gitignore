@@ -8,3 +8,5 @@
 /*.Rcheck
 
 /r-devel-outputs
+
+.DS_Store
