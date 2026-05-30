@@ -5,6 +5,7 @@
 ofh_default_proportions <- function() {
   list(
     clinic_measurements = 0.70,
+    pcot_lipid_profile = 0.56,
     country_region = 0.70,
     nhse_outpat = 0.40,
     nhse_inpat = 0.40,
@@ -201,6 +202,7 @@ ofh_build_config <- function(
       participant_data = list(unique_pids = "ALL"),
       questionnaire_data = list(unique_pids = "ALL"),
       clinic_measurements_data = list(unique_pids = ds_n(proportions$clinic_measurements)),
+      pcot_lipid_profile_data = list(unique_pids = ds_n(proportions$pcot_lipid_profile)),
       nhse_outpat_data = list(
         unique_pids = nhse_outpat_n,
         total_records = as.integer(max(nhse_outpat_n, round(n * record_multipliers$nhse_outpat)))

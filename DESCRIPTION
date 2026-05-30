@@ -2,9 +2,9 @@ Package: ofhsyn
 Type: Package
 Title: Synthetic Our Future Health Data Generator
 Version: 0.1.0
-Authors@R: person(given = "Hannah", family = "Nicholls", role = c("aut", "cre"), email = "hannahnicholls@qmul.ac.uk")
+Authors@R: person(given = "Hannah", family = "Nicholls", role = c("aut", "cre"), email = "h.l.nicholls@qmul.ac.uk")
 Author: Hannah Nicholls [aut, cre]
-Maintainer: Hannah Nicholls <hannahnicholls@qmul.ac.uk>
+Maintainer: Hannah Nicholls <h.l.nicholls@qmul.ac.uk>
 Description: Generates synthetic Our Future Health cohort datasets for method development,
     including participant, questionnaire, clinic measurements, outpatient,
     inpatient, emergency, mortality, primary care medication, and geography

@@ -7,3 +7,28 @@ J449	COPD unspecified
 N189	Chronic kidney disease unspecified
 C349	Malignant neoplasm of bronchus or lung unspecified
 R99	Ill-defined and unknown cause of mortality
+N180	Chronic kidney disease stage 1
+N181	Chronic kidney disease stage 2
+N182	Chronic kidney disease stage 3
+N183	Chronic kidney disease stage 4
+N184	Chronic kidney disease stage 5
+I110	Hypertensive heart disease with (congestive) heart failure
+I119	Hypertensive heart disease without heart failure
+I120	Hypertensive renal disease
+I129	Hypertensive renal disease, unspecified
+E116	Type 2 diabetes mellitus with other specified complications
+E118	Type 2 diabetes mellitus with unspecified complications
+I501	Left ventricular failure
+I502	Systolic (congestive) heart failure
+I503	Diastolic (congestive) heart failure
+I504	Combined systolic and diastolic heart failure
+I10	Essential (primary) hypertension
+E660	Obesity due to excess calories
+E669	Obesity, unspecified
+I489	Atrial fibrillation and flutter
+I48	Atrial fibrillation and flutter (general)
+I21	Acute myocardial infarction
+I251	Atherosclerotic heart disease of native coronary artery
+I259	Chronic ischemic heart disease, unspecified
+I63	Cerebral infarction
+I64	Stroke, not specified as hemorrhage or infarction

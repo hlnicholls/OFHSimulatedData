@@ -292,6 +292,7 @@ OFHCohortSynthesizer <- methods::setRefClass(
       scripts <- c(
         "generate_participant_data.R",
         "generate_clinic_measurements_data.R",
+        "generate_pcot_lipid_profile_data.R",
         "generate_questionnaire_data.R",
         "generate_nhse_outpatient_data.R",
         "generate_nhse_inpatient_data.R",
@@ -345,6 +346,7 @@ OFHCohortSynthesizer <- methods::setRefClass(
       files <- c(
         participant_data = "participant_data.csv",
         clinic_measurements_data = "clinic_measurements_data.csv",
+        pcot_lipid_profile_data = "pcot_lipid_profile_data.csv",
         questionnaire_data = "questionnaire_data.csv",
         nhse_outpat_data = "nhse_outpat_data.csv",
         nhse_inpat_data = "nhse_inpat_data.csv",
