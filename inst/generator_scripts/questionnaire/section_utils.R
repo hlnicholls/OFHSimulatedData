@@ -91,8 +91,8 @@ write_section <- function(df, section_name) {
 
   out_path <- file.path(get_output_dir(), paste0(section_name, ".csv"))
   write_csv_utf8bom(df, out_path)
-  cat(sprintf("\nGenerated %s\n", basename(out_path)))
-  cat(sprintf("%d rows and %d columns\n", nrow(df), ncol(df)))
+  message(sprintf("Generated %s", basename(out_path)))
+  message(sprintf("%d rows and %d columns", nrow(df), ncol(df)))
 }
 
 write_csv_utf8bom <- function(df, path) {

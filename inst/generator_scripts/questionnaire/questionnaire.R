@@ -1,7 +1,7 @@
 if (file.exists("questionnaire/section_utils.R")) {
-	source("questionnaire/section_utils.R")
+	source("questionnaire/section_utils.R", local = TRUE)
 } else {
-	source("section_utils.R")
+	source("section_utils.R", local = TRUE)
 }
 
 questionnaire_data <- get_questionnaire_data()

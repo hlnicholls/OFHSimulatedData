@@ -1,11 +1,12 @@
 #' Default dataset proportions for OFH generation
 #'
-#' @return A named list of dataset proportions.
+#' @return A named numeric list with one element per dataset source,
+#' containing proportions in [0, 1] used to derive unique participant counts.
 #' @export
 ofh_default_proportions <- function() {
   list(
     clinic_measurements = 0.70,
-    pcot_lipid_profile = 0.56,
+    poct_lipid_profile = 0.56,
     country_region = 0.70,
     nhse_outpat = 0.40,
     nhse_inpat = 0.40,
@@ -17,7 +18,8 @@ ofh_default_proportions <- function() {
 
 #' Default record multipliers for multi-record datasets
 #'
-#' @return A named list of record multipliers.
+#' @return A named numeric list of per-dataset multipliers used to derive
+#' total row counts for multi-record outputs.
 #' @export
 ofh_default_record_multipliers <- function() {
   list(
@@ -29,7 +31,9 @@ ofh_default_record_multipliers <- function() {
 
 #' Default clinical code configuration
 #'
-#' @return Nested list of default coding pools and generation options.
+#' @return A nested named list keyed by dataset output name (for example,
+#' \code{nhse_outpat_data}) containing default code pools, optional sampling
+#' weights, and field-level missingness/probability controls.
 #' @export
 ofh_default_code_config <- function() {
   list(
@@ -177,7 +181,13 @@ ofh_default_code_config <- function() {
 #' @param proportions Dataset proportion list.
 #' @param record_multipliers Multipliers for multi-record datasets.
 #' @param code_config User overrides for coding configuration.
-#' @return Generation configuration list.
+#' @return A named list with:
+#' \itemize{
+#'   \item \code{total_pid_count}: integer cohort size,
+#'   \item \code{datasets}: nested list of per-dataset sizing settings
+#'   (for example \code{unique_pids}, \code{total_records}),
+#'   \item \code{code_config}: merged code-generation configuration list.
+#' }
 #' @export
 ofh_build_config <- function(
   n = 5000,
@@ -202,7 +212,7 @@ ofh_build_config <- function(
       participant_data = list(unique_pids = "ALL"),
       questionnaire_data = list(unique_pids = "ALL"),
       clinic_measurements_data = list(unique_pids = ds_n(proportions$clinic_measurements)),
-      pcot_lipid_profile_data = list(unique_pids = ds_n(proportions$pcot_lipid_profile)),
+      poct_lipid_profile_data = list(unique_pids = ds_n(proportions$poct_lipid_profile)),
       nhse_outpat_data = list(
         unique_pids = nhse_outpat_n,
         total_records = as.integer(max(nhse_outpat_n, round(n * record_multipliers$nhse_outpat)))

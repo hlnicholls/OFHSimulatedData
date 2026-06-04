@@ -1,4 +1,4 @@
-source("questionnaire/section_utils.R")
+source("questionnaire/section_utils.R", local = TRUE)
 
 generator_root <- resolve_generator_root()
 questionnaire_dir <- file.path(generator_root, "questionnaire")
@@ -46,7 +46,7 @@ final_df <- merged[, keep_cols, drop = FALSE]
 
 # Align output schema to the monolithic questionnaire generator when possible.
 reference_df <- tryCatch({
-	reference_env <- new.env(parent = globalenv())
+	reference_env <- new.env(parent = baseenv())
 	reference_script <- file.path(generator_root, "questionnaire", "bootstrap_source_data.R")
 	if (!file.exists(reference_script)) return(NULL)
 	sys.source(reference_script, envir = reference_env)
@@ -74,5 +74,5 @@ if (!dir.exists(data_dir)) dir.create(data_dir, recursive = TRUE, showWarnings =
 final_path <- file.path(data_dir, "questionnaire_data.csv")
 write_csv_utf8bom(final_df, final_path)
 
-cat(sprintf("\nGenerated questionnaire_data.csv\n"))
-cat(sprintf("%d rows and %d columns\n", nrow(final_df), ncol(final_df)))
+message("Generated questionnaire_data.csv")
+message(sprintf("%d rows and %d columns", nrow(final_df), ncol(final_df)))

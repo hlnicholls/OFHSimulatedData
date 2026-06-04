@@ -6,6 +6,12 @@
 #' @field output_dir Output directory for final CSV files.
 #' @field seed Random seed.
 #' @field config Generation configuration.
+#' @return A 
+#' \code{ReferenceClass} generator object. Use 
+#' \code{OFHCohortSynthesizer$new(...)} to instantiate it. Instance methods
+#' return the instance invisibly for chaining where applicable, and
+#' \code{$run_all()} returns a named list of data frames when
+#' \code{return_objects = TRUE} (otherwise invisible \code{NULL}).
 #' @export
 OFHCohortSynthesizer <- methods::setRefClass(
   "OFHCohortSynthesizer",
@@ -219,8 +225,8 @@ OFHCohortSynthesizer <- methods::setRefClass(
         code_config = code_config
       )
 
-      cat("\n=== GENERATION CONFIGURATION ===\n")
-      cat("Cohort size:", config$total_pid_count, "participants\n")
+      message("=== GENERATION CONFIGURATION ===")
+      message(sprintf("Cohort size: %s participants", config$total_pid_count))
       icd10_count <- if (!is.null(config$code_config$nhse_outpat_data$icd10_descriptions)) {
         length(config$code_config$nhse_outpat_data$icd10_descriptions)
       } else {
@@ -238,10 +244,10 @@ OFHCohortSynthesizer <- methods::setRefClass(
       } else {
         0
       }
-      cat("ICD-10 codes: ", icd10_count, "\n", sep = "")
-      cat("OPCS4 codes: ", opcs4_count, "\n", sep = "")
-      cat("BNF codes: ", bnf_count, "\n", sep = "")
-      cat("=== GENERATING DATASETS ===\n\n")
+      message(sprintf("ICD-10 codes: %s", icd10_count))
+      message(sprintf("OPCS4 codes: %s", opcs4_count))
+      message(sprintf("BNF codes: %s", bnf_count))
+      message("=== GENERATING DATASETS ===")
 
       work_root <- tempfile("ofh_build_")
       dir.create(work_root, recursive = TRUE, showWarnings = FALSE)
@@ -281,10 +287,11 @@ OFHCohortSynthesizer <- methods::setRefClass(
       on.exit(setwd(old_wd), add = TRUE)
       setwd(work_scripts)
 
-      source("generate_pids.R")
+      run_env <- new.env(parent = parent.frame())
+      source("generate_pids.R", local = run_env)
       old_ofh_opts <- options(
         OFH_GEN_CONFIG = config,
-        OFH_ALL_STUDY_PIDS = generate_pids(config$total_pid_count)
+        OFH_ALL_STUDY_PIDS = run_env$generate_pids(config$total_pid_count)
       )
       on.exit(options(old_ofh_opts), add = TRUE)
       set.seed(.self$seed)
@@ -292,7 +299,7 @@ OFHCohortSynthesizer <- methods::setRefClass(
       scripts <- c(
         "generate_participant_data.R",
         "generate_clinic_measurements_data.R",
-        "generate_pcot_lipid_profile_data.R",
+        "generate_poct_lipid_profile_data.R",
         "generate_questionnaire_data.R",
         "generate_nhse_outpatient_data.R",
         "generate_nhse_inpatient_data.R",
@@ -301,7 +308,7 @@ OFHCohortSynthesizer <- methods::setRefClass(
         "generate_nhse_primary_care_meds_data.R",
         "generate_country_region_data.R"
       )
-      for (script in scripts) source(script)
+      for (script in scripts) source(script, local = run_env)
 
       src_data_dir <- file.path(work_root, "data")
       if (!dir.exists(src_data_dir)) {
@@ -321,21 +328,6 @@ OFHCohortSynthesizer <- methods::setRefClass(
         read_dir <- if (isTRUE(save_csv)) .self$output_dir else src_data_dir
         out <- .self$read_outputs(data_dir = read_dir)
 
-        if (interactive()) {
-          list2env(out, envir = .GlobalEnv)
-          alias_map <- list(
-            clinic_data = out$clinic_measurements_data,
-            inpatient_data = out$nhse_inpat_data,
-            outpatient_data = out$nhse_outpat_data,
-            emergency_data = out$nhse_ed_data,
-            deaths_data = out$nhse_engwal_deaths_data,
-            primary_care_meds_data = out$nhse_primcare_meds_data,
-            meds_data = out$nhse_primcare_meds_data,
-            country_region_data = out$country_region_data
-          )
-          list2env(alias_map, envir = .GlobalEnv)
-        }
-
         return(invisible(out))
       }
 
@@ -346,7 +338,7 @@ OFHCohortSynthesizer <- methods::setRefClass(
       files <- c(
         participant_data = "participant_data.csv",
         clinic_measurements_data = "clinic_measurements_data.csv",
-        pcot_lipid_profile_data = "pcot_lipid_profile_data.csv",
+        poct_lipid_profile_data = "poct_lipid_profile_data.csv",
         questionnaire_data = "questionnaire_data.csv",
         nhse_outpat_data = "nhse_outpat_data.csv",
         nhse_inpat_data = "nhse_inpat_data.csv",

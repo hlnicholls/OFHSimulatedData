@@ -2,7 +2,7 @@
 # This script creates fake primary care medication records for 5000 individuals
 
 # Source shared PID generation function
-source("generate_pids.R")
+source("generate_pids.R", local = TRUE)
 
 set.seed(42)
 
@@ -342,5 +342,5 @@ local({
   suppressWarnings(write.table(nhse_eng_primcare_meds, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 unique_pids_meds <- length(unique(nhse_eng_primcare_meds$pid))
-cat("\nGenerated nhse_primcare_meds_data.csv\n")
-cat(sprintf("%d rows and %d columns (%d unique PIDs with %d prescriptions)\n", nrow(nhse_eng_primcare_meds), ncol(nhse_eng_primcare_meds), unique_pids_meds, nrow(nhse_eng_primcare_meds)))
+message("Generated nhse_primcare_meds_data.csv")
+message(sprintf("%d rows and %d columns (%d unique PIDs with %d prescriptions)", nrow(nhse_eng_primcare_meds), ncol(nhse_eng_primcare_meds), unique_pids_meds, nrow(nhse_eng_primcare_meds)))

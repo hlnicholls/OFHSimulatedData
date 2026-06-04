@@ -3,7 +3,7 @@
 
 # Source shared PID generation function
 # Ensure generate_pids.R exists in your working directory
-source("generate_pids.R")
+source("generate_pids.R", local = TRUE)
 
 set.seed(42)
 
@@ -102,5 +102,5 @@ local({
 })
 
 unique_pids_clinic <- length(unique(clinic_measurements$pid))
-cat("\nGenerated clinic_measurements_data.csv\n")
-cat(sprintf("%d rows and %d columns (%d unique PIDs)\n", nrow(clinic_measurements), ncol(clinic_measurements), unique_pids_clinic))
+message("Generated clinic_measurements_data.csv")
+message(sprintf("%d rows and %d columns (%d unique PIDs)", nrow(clinic_measurements), ncol(clinic_measurements), unique_pids_clinic))

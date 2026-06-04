@@ -1,7 +1,7 @@
 # Generate synthetic emergency department data
 # Updated: Dataset restricted to 2000 of the 5000 total PIDs
-source("generate_pids.R")
-source("nhse_new_columns_helpers.R")
+source("generate_pids.R", local = TRUE)
+source("nhse_new_columns_helpers.R", local = TRUE)
 
 set.seed(42)
 
@@ -115,5 +115,5 @@ local({
 
 # Summary for verification
 actual_pids_in_data <- length(unique(nhse_eng_ed$pid))
-cat("\nGenerated nhse_ed_data.csv\n")
-cat(sprintf("%d rows and %d columns (%d unique PIDs with %d visits)\n", nrow(nhse_eng_ed), ncol(nhse_eng_ed), actual_pids_in_data, nrow(nhse_eng_ed)))
+message("Generated nhse_ed_data.csv")
+message(sprintf("%d rows and %d columns (%d unique PIDs with %d visits)", nrow(nhse_eng_ed), ncol(nhse_eng_ed), actual_pids_in_data, nrow(nhse_eng_ed)))

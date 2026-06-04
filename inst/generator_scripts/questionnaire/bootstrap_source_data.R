@@ -1,6 +1,6 @@
 # Bootstrap questionnaire source data for first-run modular execution.
 
-source("generate_pids.R")
+source("generate_pids.R", local = TRUE)
 
 set.seed(42)
 

@@ -2,8 +2,8 @@
 # Updated: Dataset restricted to only 2000 of the 5000 total PIDs
 
 # Source shared PID generation function
-source("generate_pids.R")
-source("nhse_new_columns_helpers.R")
+source("generate_pids.R", local = TRUE)
+source("nhse_new_columns_helpers.R", local = TRUE)
 
 set.seed(42)
 
@@ -127,5 +127,5 @@ local({
 
 # Summary Verification
 actual_pids_in_data <- length(unique(nhse_eng_inpat$pid))
-cat("\nGenerated nhse_inpat_data.csv\n")
-cat(sprintf("%d rows and %d columns (%d unique PIDs with %d admissions)\n", nrow(nhse_eng_inpat), ncol(nhse_eng_inpat), actual_pids_in_data, nrow(nhse_eng_inpat)))
+message("Generated nhse_inpat_data.csv")
+message(sprintf("%d rows and %d columns (%d unique PIDs with %d admissions)", nrow(nhse_eng_inpat), ncol(nhse_eng_inpat), actual_pids_in_data, nrow(nhse_eng_inpat)))

@@ -32,4 +32,10 @@ synthesize_drug_exposure(
   \item{drug_list}{Medication code pool.}
   \item{mean_items_per_person}{Mean prescription items per participant.}
 }
-\value{Data frame output for each function.}
+\value{Return value depends on the function called:
+\describe{
+\item{\code{generate_ofh_population()}}{Data frame with one row per participant and columns including \code{pid}, \code{sex}, and \code{birth_year}.}
+\item{\code{add_inpatient_events()}}{Data frame of synthetic inpatient events with columns \code{pid}, \code{admidate}, \code{icd10}, and \code{opcs4}.}
+\item{\code{synthesize_drug_exposure()}}{Data frame of synthetic primary-care medication records with participant IDs and prescribing/dispensing fields (for example \code{prescribedbnfcode}, \code{paidbnfcode}).}
+}
+}

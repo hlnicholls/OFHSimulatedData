@@ -1,7 +1,7 @@
-# Generate synthetic PCOT lipid profile data
+# Generate synthetic POCT lipid profile data
 # This script creates fake lipid profile data for a subset of clinic participants
 
-source("generate_pids.R")
+source("generate_pids.R", local = TRUE)
 
 set.seed(42)
 
@@ -124,7 +124,7 @@ nonhdl_second <- gen_nonhdl(n_lipid, second_skip$skipped, tc_second, hdl_second)
 tc_hdl_ratio_second <- gen_ratio(n_lipid, second_skip$skipped, tc_second, hdl_second)
 
 # Assemble data frame
-pcot_lipid_profile <- data.frame(
+poct_lipid_profile <- data.frame(
   pid = lipid_pids,
   appointment_version = appointment_version,
   appointment_datetime = appointment_datetime,
@@ -148,10 +148,10 @@ pcot_lipid_profile <- data.frame(
 
 # Save to CSV
 local({
-  p <- "../data/pcot_lipid_profile_data.csv"
+  p <- "../data/poct_lipid_profile_data.csv"
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
-  suppressWarnings(write.table(pcot_lipid_profile, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
+  suppressWarnings(write.table(poct_lipid_profile, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 
-cat("\nGenerated pcot_lipid_profile_data.csv\n")
-cat(sprintf("%d rows and %d columns (%d unique PIDs)\n", nrow(pcot_lipid_profile), ncol(pcot_lipid_profile), length(unique(pcot_lipid_profile$pid))))
+message("Generated poct_lipid_profile_data.csv")
+message(sprintf("%d rows and %d columns (%d unique PIDs)", nrow(poct_lipid_profile), ncol(poct_lipid_profile), length(unique(poct_lipid_profile$pid))))

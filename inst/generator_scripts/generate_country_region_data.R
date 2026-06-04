@@ -2,7 +2,7 @@
 # This script creates fake country and region data for 5000 individuals
 
 # Source shared PID generation function
-source("generate_pids.R")
+source("generate_pids.R", local = TRUE)
 
 set.seed(42)
 
@@ -38,5 +38,5 @@ local({
   suppressWarnings(write.table(country_region, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
 unique_pids_region <- length(unique(country_region$pid))
-cat("\nGenerated country_region_data.csv\n")
-cat(sprintf("%d rows and %d columns (%d unique PIDs)\n", nrow(country_region), ncol(country_region), unique_pids_region))
+message("Generated country_region_data.csv")
+message(sprintf("%d rows and %d columns (%d unique PIDs)", nrow(country_region), ncol(country_region), unique_pids_region))

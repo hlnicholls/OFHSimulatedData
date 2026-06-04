@@ -3,8 +3,8 @@
 # Every visit guaranteed to have a primary diagnosis
 
 # Source shared PID generation function
-source("generate_pids.R")
-source("nhse_new_columns_helpers.R")
+source("generate_pids.R", local = TRUE)
+source("nhse_new_columns_helpers.R", local = TRUE)
 
 set.seed(42)
 
@@ -123,5 +123,5 @@ local({
 
 # Summary Verification
 actual_pids <- length(unique(nhse_eng_outpat$pid))
-cat("\nGenerated nhse_outpat_data.csv\n")
-cat(sprintf("%d rows and %d columns (%d unique PIDs with %d visits)\n", nrow(nhse_eng_outpat), ncol(nhse_eng_outpat), actual_pids, nrow(nhse_eng_outpat)))
+message("Generated nhse_outpat_data.csv")
+message(sprintf("%d rows and %d columns (%d unique PIDs with %d visits)", nrow(nhse_eng_outpat), ncol(nhse_eng_outpat), actual_pids, nrow(nhse_eng_outpat)))

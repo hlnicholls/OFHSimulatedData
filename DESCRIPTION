@@ -9,7 +9,10 @@ Description: Generates synthetic Our Future Health cohort datasets for method de
     including participant, questionnaire, clinic measurements, outpatient,
     inpatient, emergency, mortality, primary care medication, and geography
     outputs. Supports reproducible generation with configurable cohort size and
-    user-defined ICD-10, OPCS-4, and BNF code pools.
+    user-defined International Classification of Diseases, Tenth Revision
+    (ICD-10), Office of Population Censuses and Surveys Classification of
+    Interventions and Procedures, version 4 (OPCS-4), and British National
+    Formulary (BNF) code pools.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -3,7 +3,7 @@
 # Guaranteed primary and underlying cause of death
 
 # Source shared PID generation function
-source("generate_pids.R")
+source("generate_pids.R", local = TRUE)
 
 set.seed(42)
 
@@ -80,5 +80,5 @@ local({
 })
 
 # Summary Verification
-cat("\nGenerated nhse_engwal_deaths_data.csv with", nrow(death_records), "rows and", ncol(death_records), "columns\n")
-cat("Total deaths recorded:", nrow(death_records), "| PIDs with no death record:", n_total_study_people - nrow(death_records), "\n")
+message(sprintf("Generated nhse_engwal_deaths_data.csv with %d rows and %d columns", nrow(death_records), ncol(death_records)))
+message(sprintf("Total deaths recorded: %d | PIDs with no death record: %d", nrow(death_records), n_total_study_people - nrow(death_records)))

@@ -2,7 +2,7 @@
 # This script creates fake participant data for 5000 individuals
 
 # Source shared PID generation function
-source("generate_pids.R")
+source("generate_pids.R", local = TRUE)
 
 set.seed(42)
 
@@ -107,5 +107,5 @@ local({
   con <- file(p, "wb"); writeBin(as.raw(c(0xEF, 0xBB, 0xBF)), con); close(con)
   suppressWarnings(write.table(participant, file = p, append = TRUE, sep = ",", row.names = FALSE, col.names = TRUE, qmethod = "double", na = "NA", fileEncoding = "UTF-8"))
 })
-cat("\nGenerated participant_data.csv\n")
-cat(nrow(participant), "rows and", ncol(participant), "columns\n")
+message("Generated participant_data.csv")
+message(sprintf("%d rows and %d columns", nrow(participant), ncol(participant)))
