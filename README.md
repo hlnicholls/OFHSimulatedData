@@ -32,15 +32,10 @@ Minimum:
 
 - R 4.2+
 
-For vignette building/preview:
-
-- `rmarkdown`
-- `knitr`
-
-Install vignette dependencies (if needed):
+## Installation
 
 ```r
-install.packages(c("rmarkdown", "knitr"))
+install.packages('ofhsyn')
 ```
 
 ## Quick Start
