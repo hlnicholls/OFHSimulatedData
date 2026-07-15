@@ -8,6 +8,9 @@ The output data is a general approximation of the schema intended for code devel
 
 _This is an unofficial tool and is not affiliated with Our Future Health._
 
+**Note on Official Tooling**: In June 2026, OFH released their official Python-based [Synthetic Data Generator](https://github.com/ourfuturehealth/ofh-synthetic-data-generator) (currently in Beta), which generates participant and questionnaire tables. These will be much more representative than `ofhsyn`, and it is highly recommended to use their official resource where possible. However, `ofhsyn` can still support code development by providing R-native schemas across a broad range of data entities (such as geography, clinic measures, deaths, and HES/primary care events) that are not yet covered by the official Beta.
+
+
 ## What It Generates
 
 The generator produces CSV files for a synthetic cohort, including:
@@ -42,14 +45,8 @@ install.packages(c("rmarkdown", "knitr"))
 
 ## Quick Start
 
-```
-git clone https://github.com/hlnicholls/ofhsyn
-
-cd ./ofhsyn
-```
-
 ```r
-install.packages(".", repos = NULL, type = "source")
+install.packages('ofhsyn')
 library(ofhsyn)
 
 syn <- OFHCohortSynthesizer$new(project_root = ".", seed = 123)
