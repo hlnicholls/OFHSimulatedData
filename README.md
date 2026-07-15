@@ -32,7 +32,7 @@ Minimum:
 
 - R 4.2+
 
-## Installation
+## Installation
 
 ```r
 install.packages('ofhsyn')
