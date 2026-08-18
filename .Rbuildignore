@@ -15,4 +15,5 @@
 ^example$
 ^ofhsyn-manual-preview\.pdf$
 ^.*\.Rcheck$
+^submission_devel_.*$
 ^\.DS_Store$
